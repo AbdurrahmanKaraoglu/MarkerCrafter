@@ -1,6 +1,6 @@
 name: marker_crafter
 description: Marker Crafter özelleştirilmiş marker paketidir.
-version: 1.0.1+2
+version: 1.0.1+3
 homepage: "https://github.com/AbdurrahmanKaraoglu/MarkerCrafter.git"
 
 environment:
