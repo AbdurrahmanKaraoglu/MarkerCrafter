@@ -98,7 +98,7 @@ Bu kadar! Artık Flutter projenizde Marker Crafter paketini kullanabilirsiniz. �
 
 ## Lisans
 
-Bu proje MIT Lisansı altında lisanslanmıştır. Daha fazla bilgi için [LICENSE](https://github.com/example/repo/blob/main/LICENSE) dosyasını inceleyebilirsiniz.
+Bu proje MIT Lisansı altında lisanslanmıştır. Daha fazla bilgi için [LICENSE](https://pub.dev/packages/marker_crafter/license) dosyasını inceleyebilirsiniz.
 
 
 # Marker Crafter
@@ -201,4 +201,4 @@ That's it! You can now use the Marker Crafter package in your Flutter project. Y
 
 ## License
 
-This project is licensed under the MIT License. For more information, see the [LICENSE](https://github.com/example/repo/blob/main/LICENSE) file.
+This project is licensed under the MIT License. For more information, see the [LICENSE](https://pub.dev/packages/marker_crafter/license) file.
