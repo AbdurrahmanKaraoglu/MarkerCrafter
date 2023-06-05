@@ -1,39 +1,109 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+```markdown
+# Marker Crafter
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
+[![pub package](https://img.shields.io/pub/v/marker_crafter.svg)](https://pub.dev/packages/marker_crafter)
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
+Marker Crafter, Flutter'da kullanıcı tanımlı metin etiketlerini harita üzerinde göstermek için kullanılan bir Flutter paketidir. Bu paket, Google Maps Flutter paketini kullanarak harita üzerindeki işaretçilere özel metin eklemenizi sağlar.
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+## Kullanım
 
-## Features
+1. İlk olarak, `google_maps_flutter` paketini projenize ekleyin. Aşağıdaki gibi `pubspec.yaml` dosyasını düzenleyin:
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
-```dart
-const like = 'sample';
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  google_maps_flutter: ^2.0.10
 ```
 
-## Additional information
+2. Daha sonra, `marker_crafter` paketini projenize ekleyin. Aşağıdaki gibi `pubspec.yaml` dosyasını düzenleyin ve paketi projenize ekleyin:
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  google_maps_flutter: ^2.0.10
+  marker_crafter: ^1.0.0
+```
+
+3. Koddan bir örnek:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:marker_crafter/marker_crafter.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: MapScreen(),
+    );
+  }
+}
+
+class MapScreen extends StatefulWidget {
+  @override
+  _MapScreenState createState() => _MapScreenState();
+}
+
+class _MapScreenState extends State<MapScreen> {
+  Set<Marker> markers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    addMarkers();
+  }
+
+  void addMarkers() async {
+    MarkerCrafter marker = MarkerCrafter(
+      text: "Marker Label",
+      markerId: MarkerId("markerIdString"),
+      position: LatLng(11.1203, 45.33),
+    );
+
+    bool success = await markers.addTextMarker(marker);
+    if (success) {
+      setState(() {});
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Marker Crafter Demo"),
+      ),
+      body: GoogleMap(
+        initialCameraPosition: CameraPosition(
+          target: LatLng(11.1203, 45.33),
+          zoom: 10,
+        ),
+        markers: markers,
+      ),
+    );
+  }
+}
+```
+
+Bu örnekte, `MarkerCrafter` sınıfını kullanarak harita üzerinde bir işaretçi ekleniyor. `addTextMarker` işlevi, `MarkerCrafter` örneğini alır ve verilen metne sahip bir işaretçi oluşturur.
+
+---
+
+Bu kadar! Artık Flutter projenizde Marker Crafter paketini kullanabilirsiniz. İşaretçilere metin eklemek için `MarkerCrafter` sınıfını kullanabilirsiniz.
+
+## Lisans
+
+Bu proje MIT lisansı altında lisanslanmıştır. Daha fazla bilgi için [LICENSE](https://github.com/example/repo/blob/main/LICENSE) dosyasını inceleyebilirsiniz.
+```
+
+Bu Türkçe README, `marker_c
+
+rafter` paketinin kullanımı hakkında bilgi vermektedir. Örnek bir Flutter uygulamasında nasıl kullanılacağını ve paketin nasıl eklenip kullanılacağını göstermektedir. Örnekte, harita üzerine metin eklemek için `MarkerCrafter` sınıfının nasıl kullanılacağı açıklanmaktadır. Ayrıca, projeyi eklediğinizde hangi bağımlılıklara ihtiyaç duyulduğu belirtilmiştir.
+
+Not: Bu README örneği, README.md dosyanızı oluşturmanız için bir temel sağlamaktadır. Kodunuz ve projeniz hakkındaki özel bilgileri eklemeyi unutmayın.

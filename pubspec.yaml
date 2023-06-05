@@ -1,6 +1,6 @@
 name: marker_crafter
-description: A new Flutter package project.
-version: 0.0.1
+description: Marker Crafter özelleştirilmiş marker paketidir.
+version: 1.0.1+1
 homepage: "https://github.com/AbdurrahmanKaraoglu/MarkerCrafter.git"
 
 environment:

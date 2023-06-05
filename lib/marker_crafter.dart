@@ -47,59 +47,38 @@ extension MarkerCrafterAddExtension on Set<Marker> {
   }
 }
 
-Future<BitmapDescriptor> createLocationMarkerBitmap(String text, {required TextStyle textStyle, Color backgroundColor = Colors.blueAccent}) async {
+Future<BitmapDescriptor> createLocationMarkerBitmap(String title, {required TextStyle textStyle, Color backgroundColor = const Color(0XFF3644ff)}) async {
+  double outerRadius = 20.0;
+  double innerRadius = 10.0;
+  double textSize = 12.0;
+
+  ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
+  Canvas canvas = Canvas(pictureRecorder);
+
+  Paint outerCirclePaint = Paint()..color = backgroundColor;
+  canvas.drawCircle(Offset(outerRadius, outerRadius), outerRadius, outerCirclePaint);
+
+  Paint innerCirclePaint = Paint()..color = Colors.white;
+  canvas.drawCircle(Offset(outerRadius, outerRadius), innerRadius, innerCirclePaint);
+
   TextSpan span = TextSpan(
     style: textStyle,
-    text: text,
+    text: title,
   );
-  TextPainter painter = TextPainter(
+  TextPainter textPainter = TextPainter(
     text: span,
     textAlign: TextAlign.center,
     textDirection: ui.TextDirection.ltr,
   );
-  painter.text = TextSpan(
-    text: text.toString(),
-    style: textStyle,
-  );
-  ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
-  Canvas canvas = Canvas(pictureRecorder);
-  painter.layout();
+  textPainter.layout();
+  textPainter.paint(canvas, Offset(outerRadius - textPainter.width / 2, outerRadius - textPainter.height / 2));
 
-  int textWidth = painter.width.toInt();
-  int textHeight = painter.height.toInt();
+  ui.Picture picture = pictureRecorder.endRecording();
+  ui.Image image = await picture.toImage((outerRadius * 2).toInt(), (outerRadius * 2).toInt());
+  ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+  Uint8List imageData = byteData!.buffer.asUint8List();
 
-  double circleRadius = textWidth * 0.6;
-  double circleDiameter = circleRadius * 2;
-  double labelHeight = textHeight + 10;
-  double markerHeight = circleDiameter + labelHeight;
-
-  canvas.drawCircle(
-    Offset(circleRadius, circleRadius),
-    circleRadius,
-    Paint()..color = backgroundColor,
-  );
-
-  canvas.drawRRect(
-    RRect.fromLTRBAndCorners(
-      0,
-      circleDiameter,
-      textWidth + 20,
-      markerHeight,
-      topLeft: const Radius.circular(10),
-      topRight: const Radius.circular(10),
-      bottomLeft: const Radius.circular(10),
-      bottomRight: const Radius.circular(10),
-    ),
-    Paint()..color = backgroundColor,
-  );
-
-  painter.paint(canvas, Offset(10, circleDiameter + 5));
-
-  ui.Picture p = pictureRecorder.endRecording();
-  ByteData? pngBytes = await (await p.toImage(textWidth.toInt() + 20, markerHeight.toInt())).toByteData(format: ui.ImageByteFormat.png);
-  Uint8List data = Uint8List.view(pngBytes!.buffer);
-
-  return BitmapDescriptor.fromBytes(data);
+  return BitmapDescriptor.fromBytes(imageData);
 }
 
 class MarkerCrafter {
