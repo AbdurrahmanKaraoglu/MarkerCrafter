@@ -23,6 +23,31 @@ extension MarkerCrafterAddExtension on Set<Marker> {
   ///      });
   Future<bool> addTextMarker(MarkerCrafter markerCrafter) async {
     bool result = false;
+    await createRoundedMarkerIcon(markerCrafter.text, backgroundColor: markerCrafter.backgroundColor, textStyle: markerCrafter.textStyle).then((value) {
+      add(Marker(
+          markerId: markerCrafter.markerId,
+          position: markerCrafter.position,
+          icon: value,
+          alpha: markerCrafter.alpha,
+          anchor: markerCrafter.anchor,
+          consumeTapEvents: markerCrafter.consumeTapEvents,
+          draggable: markerCrafter.draggable,
+          flat: markerCrafter.flat,
+          infoWindow: markerCrafter.infoWindow,
+          rotation: markerCrafter.rotation,
+          visible: markerCrafter.visible,
+          zIndex: markerCrafter.zIndex,
+          onTap: markerCrafter.onTap,
+          onDragStart: markerCrafter.onDragStart,
+          onDrag: markerCrafter.onDrag,
+          onDragEnd: markerCrafter.onDragEnd));
+      result = true;
+    });
+    return (result);
+  }
+
+  Future<bool> addEvilEyeBeadMarker(MarkerCrafter markerCrafter) async {
+    bool result = false;
     await createLocationMarkerBitmap(markerCrafter.text, backgroundColor: markerCrafter.backgroundColor, textStyle: markerCrafter.textStyle).then((value) {
       add(Marker(
           markerId: markerCrafter.markerId,
@@ -50,7 +75,6 @@ extension MarkerCrafterAddExtension on Set<Marker> {
 Future<BitmapDescriptor> createLocationMarkerBitmap(String title, {required TextStyle textStyle, Color backgroundColor = const Color(0XFF3644ff)}) async {
   double outerRadius = 20.0;
   double innerRadius = 10.0;
-  double textSize = 12.0;
 
   ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
   Canvas canvas = Canvas(pictureRecorder);
@@ -72,6 +96,47 @@ Future<BitmapDescriptor> createLocationMarkerBitmap(String title, {required Text
   );
   textPainter.layout();
   textPainter.paint(canvas, Offset(outerRadius - textPainter.width / 2, outerRadius - textPainter.height / 2));
+
+  ui.Picture picture = pictureRecorder.endRecording();
+  ui.Image image = await picture.toImage((outerRadius * 2).toInt(), (outerRadius * 2).toInt());
+  ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+  Uint8List imageData = byteData!.buffer.asUint8List();
+
+  return BitmapDescriptor.fromBytes(imageData);
+}
+
+Future<BitmapDescriptor> createRoundedMarkerIcon(String title, {TextStyle? textStyle, Color backgroundColor = const Color(0XFFB70404)}) async {
+  double outerRadius = 15.0;
+  double innerRadius = 5.0;
+
+  ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
+  Canvas canvas = Canvas(pictureRecorder);
+
+  Paint outerCirclePaint = Paint()..color = backgroundColor;
+  canvas.drawRRect(
+    RRect.fromRectAndRadius(
+      Rect.fromLTWH(0, 0, outerRadius * 2, outerRadius * 2),
+      Radius.circular(outerRadius),
+    ),
+    outerCirclePaint,
+  );
+
+  Paint innerCirclePaint = Paint()..color = Colors.white;
+  canvas.drawCircle(Offset(outerRadius, outerRadius), innerRadius, innerCirclePaint);
+
+  if (textStyle != null) {
+    TextSpan span = TextSpan(
+      style: textStyle,
+      text: title,
+    );
+    TextPainter textPainter = TextPainter(
+      text: span,
+      textAlign: TextAlign.center,
+      textDirection: ui.TextDirection.ltr,
+    );
+    textPainter.layout();
+    textPainter.paint(canvas, Offset(outerRadius - textPainter.width / 2, outerRadius - textPainter.height / 2));
+  }
 
   ui.Picture picture = pictureRecorder.endRecording();
   ui.Image image = await picture.toImage((outerRadius * 2).toInt(), (outerRadius * 2).toInt());
