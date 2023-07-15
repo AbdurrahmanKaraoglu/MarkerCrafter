@@ -105,45 +105,58 @@ Future<BitmapDescriptor> createLocationMarkerBitmap(String title, {required Text
   return BitmapDescriptor.fromBytes(imageData);
 }
 
-Future<BitmapDescriptor> createRoundedMarkerIcon(String title, {TextStyle? textStyle, Color backgroundColor = const Color(0XFFB70404)}) async {
-  double outerRadius = 15.0;
-  double innerRadius = 5.0;
+Future<BitmapDescriptor> createRoundedMarkerIcon(String title, {required TextStyle textStyle, Color backgroundColor = Colors.blueAccent}) async {
+  TextSpan span = TextSpan(
+    style: textStyle,
+    text: title,
+  );
+  TextPainter painter = TextPainter(
+    text: span,
+    textAlign: TextAlign.center,
+    textDirection: ui.TextDirection.ltr,
+  );
+  painter.text = TextSpan(
+    text: title.toString(),
+    style: textStyle,
+  );
+  painter.layout();
+
+  int textWidth = painter.width.toInt();
+  int textHeight = painter.height.toInt();
 
   ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
   Canvas canvas = Canvas(pictureRecorder);
 
-  Paint outerCirclePaint = Paint()..color = backgroundColor;
-  canvas.drawRRect(
-    RRect.fromRectAndRadius(
-      Rect.fromLTWH(0, 0, outerRadius * 2, outerRadius * 2),
-      Radius.circular(outerRadius),
-    ),
-    outerCirclePaint,
+  RRect roundedRect = RRect.fromLTRBAndCorners(
+    0,
+    0,
+    textWidth + 40,
+    textHeight + 20,
+    bottomLeft: const Radius.circular(10),
+    bottomRight: const Radius.circular(10),
+    topLeft: const Radius.circular(10),
+    topRight: const Radius.circular(10),
   );
 
-  Paint innerCirclePaint = Paint()..color = Colors.white;
-  canvas.drawCircle(Offset(outerRadius, outerRadius), innerRadius, innerCirclePaint);
+  Paint rectPaint = Paint()..color = backgroundColor;
+  canvas.drawRRect(roundedRect, rectPaint);
 
-  if (textStyle != null) {
-    TextSpan span = TextSpan(
-      style: textStyle,
-      text: title,
-    );
-    TextPainter textPainter = TextPainter(
-      text: span,
-      textAlign: TextAlign.center,
-      textDirection: ui.TextDirection.ltr,
-    );
-    textPainter.layout();
-    textPainter.paint(canvas, Offset(outerRadius - textPainter.width / 2, outerRadius - textPainter.height / 2));
-  }
+  Path arrowPath = Path();
+  arrowPath.moveTo((textWidth + 40) / 2 - 15, textHeight + 20);
+  arrowPath.lineTo((textWidth + 40) / 2, textHeight + 40);
+  arrowPath.lineTo((textWidth + 40) / 2 + 15, textHeight + 20);
+  arrowPath.close();
 
-  ui.Picture picture = pictureRecorder.endRecording();
-  ui.Image image = await picture.toImage((outerRadius * 2).toInt(), (outerRadius * 2).toInt());
-  ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-  Uint8List imageData = byteData!.buffer.asUint8List();
+  Paint arrowPaint = Paint()..color = backgroundColor;
+  canvas.drawPath(arrowPath, arrowPaint);
 
-  return BitmapDescriptor.fromBytes(imageData);
+  painter.paint(canvas, const Offset(20.0, 10.0));
+
+  ui.Picture p = pictureRecorder.endRecording();
+  ByteData? pngBytes = await (await p.toImage((textWidth + 40), (textHeight + 50))).toByteData(format: ui.ImageByteFormat.png);
+  Uint8List data = Uint8List.view(pngBytes!.buffer);
+
+  return BitmapDescriptor.fromBytes(data);
 }
 
 class MarkerCrafter {
