@@ -12,7 +12,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  google_maps_flutter: ^2.3.1
+  google_maps_flutter: ^2.4.0
   
 license: MIT
 dev_dependencies:
