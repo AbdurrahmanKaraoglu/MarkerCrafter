@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:marker_crafter/extension/marker_crafter_add_extension.dart';
 import 'package:marker_crafter/marker_crafter.dart';
 
 void main() {
@@ -40,12 +41,13 @@ class _MapScreenState extends State<MapScreen> {
 
   void addMarkers() async {
     MarkerCrafter marker = MarkerCrafter(
-      text: "İşaretçi Etiketi",
+      text: "1",
       markerId: const MarkerId("markerIdString"),
-      position: const LatLng(11.1203, 45.33),
+      position: const LatLng(41.087577, 28.809226),
+      backgroundColor:  Colors.red,
     );
 
-    bool success = await markers.addTextMarker(marker);
+    bool success = await markers.addTextMarker2(marker);
     if (success) {
       setState(() {});
     }
@@ -59,7 +61,7 @@ class _MapScreenState extends State<MapScreen> {
       ),
       body: GoogleMap(
         initialCameraPosition: const CameraPosition(
-          target: LatLng(11.1203, 45.33),
+          target: LatLng(41.087577, 28.809226),
           zoom: 10,
         ),
         markers: markers,

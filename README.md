@@ -22,7 +22,7 @@ dependencies:
   flutter:
     sdk: flutter
   google_maps_flutter: ^2.0.10
-  marker_crafter: ^1.1.2
+  marker_crafter: ^1.1.3
 ```
 
 3. İşte bir örnek kod:
@@ -125,7 +125,7 @@ dependencies:
   flutter:
     sdk: flutter
   google_maps_flutter: ^2.0.10
-  marker_crafter: ^1.1.2
+  marker_crafter: ^1.1.3
 ```
 
 3. Here's an example code:
