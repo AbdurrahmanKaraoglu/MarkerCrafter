@@ -1,6 +1,6 @@
 name: marker_crafter
 description: Draws custom Google Maps markers (text labels, rings and location pins) with Canvas and turns them into BitmapDescriptors.
-version: 2.1.1
+version: 2.1.2
 homepage: https://github.com/AbdurrahmanKaraoglu/MarkerCrafter
 repository: https://github.com/AbdurrahmanKaraoglu/MarkerCrafter
 issue_tracker: https://github.com/AbdurrahmanKaraoglu/MarkerCrafter/issues

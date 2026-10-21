@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -141,10 +142,65 @@ Future<BitmapDescriptor> createLocationMarkerBitmap(
 
 /// The pixel ratio used when none is passed: the one of the app's main view,
 /// or 1.0 when there is none (for example in a background isolate).
+///
+/// Right after start-up, before the platform has reported the screen metrics,
+/// the main view reports 1.0. The marker functions wait for the metrics in that
+/// case (see [waitForPixelRatio]); this synchronous getter does not.
 double resolvePixelRatio([double? pixelRatio]) {
-  final double ratio = pixelRatio ?? ui.PlatformDispatcher.instance.implicitView?.devicePixelRatio ?? 1.0;
+  final double ratio = pixelRatio ?? _platformDispatcher.implicitView?.devicePixelRatio ?? 1.0;
   assert(ratio > 0, 'pixelRatio must be positive');
   return ratio;
+}
+
+/// Like [resolvePixelRatio], but when no [pixelRatio] is passed and the main
+/// view has no size yet (its metrics have not arrived, as in `initState` of the
+/// first screen), waits up to [timeout] for the metrics first.
+Future<double> waitForPixelRatio([double? pixelRatio, Duration timeout = const Duration(seconds: 2)]) async {
+  if (pixelRatio != null) {
+    return resolvePixelRatio(pixelRatio);
+  }
+  final ui.FlutterView? view = _platformDispatcher.implicitView;
+  if (view != null && view.physicalSize.isEmpty && _hasWidgetsBinding) {
+    final _MetricsObserver observer = _MetricsObserver(view);
+    WidgetsBinding.instance.addObserver(observer);
+    try {
+      await observer.ready.timeout(timeout, onTimeout: () {});
+    } finally {
+      WidgetsBinding.instance.removeObserver(observer);
+    }
+  }
+  return resolvePixelRatio();
+}
+
+/// Whether a [WidgetsBinding] exists. It does not, for example, in a background
+/// isolate, and accessing [WidgetsBinding.instance] then throws.
+bool get _hasWidgetsBinding {
+  try {
+    WidgetsBinding.instance;
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+/// The binding's dispatcher (the test one in widget tests), or the global one.
+ui.PlatformDispatcher get _platformDispatcher =>
+    _hasWidgetsBinding ? WidgetsBinding.instance.platformDispatcher : ui.PlatformDispatcher.instance;
+
+class _MetricsObserver with WidgetsBindingObserver {
+  _MetricsObserver(this.view);
+
+  final ui.FlutterView view;
+  final Completer<void> _ready = Completer<void>();
+
+  Future<void> get ready => _ready.future;
+
+  @override
+  void didChangeMetrics() {
+    if (!view.physicalSize.isEmpty && !_ready.isCompleted) {
+      _ready.complete();
+    }
+  }
 }
 
 TextPainter _layoutText(
@@ -168,7 +224,7 @@ TextPainter _layoutText(
 /// Records [draw] on a canvas of [logicalSize], rasterizes it at the pixel
 /// ratio and wraps the PNG in a [BitmapDescriptor].
 Future<BitmapDescriptor> _render(Size logicalSize, double? pixelRatio, void Function(Canvas canvas) draw) async {
-  final double ratio = resolvePixelRatio(pixelRatio);
+  final double ratio = await waitForPixelRatio(pixelRatio);
   final ui.PictureRecorder recorder = ui.PictureRecorder();
   final Canvas canvas = Canvas(recorder)..scale(ratio);
   draw(canvas);

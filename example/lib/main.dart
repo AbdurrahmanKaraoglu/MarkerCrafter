@@ -29,7 +29,8 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   static const LatLng _istanbul = LatLng(41.0082, 28.9784);
 
-  final Set<Marker> _markers = <Marker>{};
+  Set<Marker> _markers = <Marker>{};
+  int _generation = 0;
   double? _pixelRatio;
   TextScaler? _textScaler;
 
@@ -47,7 +48,12 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _addMarkers(double pixelRatio, TextScaler textScaler) async {
-    await _markers.addLabelMarker(
+    // Draws into a new set and keeps only the newest one, so a slower, older
+    // drawing (for example the one made before the screen metrics arrived)
+    // never replaces a newer one.
+    final int generation = ++_generation;
+    final Set<Marker> markers = <Marker>{};
+    await markers.addLabelMarker(
       const MarkerCrafter(
         text: 'Galata Kulesi',
         markerId: MarkerId('label'),
@@ -59,7 +65,7 @@ class _MapScreenState extends State<MapScreen> {
       textScaler: textScaler,
       pixelRatio: pixelRatio,
     );
-    await _markers.addRingMarker(
+    await markers.addRingMarker(
       const MarkerCrafter(
         text: '12',
         markerId: MarkerId('ring'),
@@ -70,7 +76,7 @@ class _MapScreenState extends State<MapScreen> {
       textScaler: textScaler,
       pixelRatio: pixelRatio,
     );
-    await _markers.addLocationMarker(
+    await markers.addLocationMarker(
       const MarkerCrafter(
         markerId: MarkerId('location'),
         position: LatLng(41.0115, 28.9834),
@@ -79,8 +85,8 @@ class _MapScreenState extends State<MapScreen> {
       ),
       pixelRatio: pixelRatio,
     );
-    if (mounted) {
-      setState(() {});
+    if (mounted && generation == _generation) {
+      setState(() => _markers = markers);
     }
   }
 

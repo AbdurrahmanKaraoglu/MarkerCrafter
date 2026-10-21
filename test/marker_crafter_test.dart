@@ -180,6 +180,38 @@ void main() {
       });
     });
 
+    testWidgets('waits for the screen metrics at start-up', (WidgetTester tester) async {
+      addTearDown(tester.view.reset);
+      // Before the platform reports the metrics the view has no size and 1.0.
+      tester.view
+        ..physicalSize = Size.zero
+        ..devicePixelRatio = 1.0;
+
+      final BytesMapBitmap bitmap = asBytes((await tester.runAsync(() async {
+        final Future<BitmapDescriptor> pending = createLocationMarkerBitmap(Colors.red, size: 30);
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        tester.view
+          ..devicePixelRatio = 2.5
+          ..physicalSize = const Size(1000, 2000);
+        return pending;
+      }))!);
+
+      expect(bitmap.imagePixelRatio, 2.5);
+      expect(pngSize(bitmap.byteData), const Size(75, 75));
+    });
+
+    testWidgets('stops waiting for the metrics after the timeout', (WidgetTester tester) async {
+      addTearDown(tester.view.reset);
+      tester.view
+        ..physicalSize = Size.zero
+        ..devicePixelRatio = 1.0;
+
+      final double? ratio = await tester.runAsync(() => waitForPixelRatio(null, const Duration(milliseconds: 50)));
+
+      expect(ratio, 1.0);
+      expect(await waitForPixelRatio(3), 3);
+    });
+
     testWidgets('uses the device pixel ratio by default', (WidgetTester tester) async {
       final double ratio = tester.view.devicePixelRatio;
       final BytesMapBitmap bitmap = asBytes((await tester.runAsync(() => createLocationMarkerBitmap(Colors.red)))!);

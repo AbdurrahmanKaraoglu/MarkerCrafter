@@ -84,8 +84,11 @@ class _MapScreenState extends State<MapScreen> {
 * Adding a marker with a `MarkerId` that is already in the set replaces it.
 * Every `MarkerCrafter` option except `text`, `backgroundColor` and `textStyle`
   is passed to `Marker` unchanged (`infoWindow`, `onTap`, `draggable`, ...).
-* Pass `pixelRatio:` (for example `MediaQuery.devicePixelRatioOf(context)`) to
-  draw for a specific screen; it defaults to the main view's pixel ratio.
+* The pixel ratio defaults to the main view's. Calling the methods in
+  `initState` is fine: they wait until the screen metrics are known. Pass
+  `pixelRatio:` to draw for a specific screen; note that
+  `MediaQuery.devicePixelRatioOf(context)` can be 1.0 during the very first
+  build, so redraw when it changes (as the example app does).
 * Pass `textScaler: MediaQuery.textScalerOf(context)` to follow the system
   font size, and `maxWidth:` / `maxLines:` to `addLabelMarker` to keep long
   text in bounds (it ends with "…").

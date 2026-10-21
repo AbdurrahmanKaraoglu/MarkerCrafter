@@ -1,3 +1,13 @@
+## 2.1.2
+
+* Markers created right after start-up (for example in `initState` of the first
+  screen) were drawn at 1x and looked blurry: Android reports a pixel ratio of
+  1.0 until the screen metrics arrive. Without an explicit `pixelRatio`, marker
+  functions now wait for the metrics (up to 2 seconds). New
+  `waitForPixelRatio()` exposes the same logic.
+* Example app: only the newest marker drawing is shown, so an older, slower one
+  cannot replace it.
+
 ## 2.1.1
 
 * The location marker (`LocationMarkerPainter`, `createLocationMarkerBitmap`,
