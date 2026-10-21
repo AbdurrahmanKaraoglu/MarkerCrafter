@@ -1,3 +1,10 @@
+## 2.1.1
+
+* The location marker (`LocationMarkerPainter`, `createLocationMarkerBitmap`,
+  `addLocationMarker`) no longer cuts off the tips of its antennas at the
+  image edges. The circle is a little smaller so the whole shape fits, and it
+  stays centered.
+
 ## 2.1.0
 
 * `MarkerCrafter.clusterManagerId` puts the marker in a marker cluster.

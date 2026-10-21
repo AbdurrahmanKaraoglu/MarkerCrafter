@@ -159,6 +159,27 @@ void main() {
       });
     });
 
+    testWidgets('fits the antennas inside the image', (WidgetTester tester) async {
+      const Color color = Color(0xFFFF00FF);
+      await tester.runAsync(() async {
+        final BytesMapBitmap bitmap = asBytes(await createLocationMarkerBitmap(color, size: 30, pixelRatio: 3));
+        final ui.Codec codec = await ui.instantiateImageCodec(bitmap.byteData);
+        final ui.Image image = (await codec.getNextFrame()).image;
+        final ByteData rgba = (await image.toByteData())!;
+        int alphaAt(int x, int y) => rgba.getUint8((y * image.width + x) * 4 + 3);
+
+        // Nothing touches the edges, so nothing was cut off.
+        for (int i = 0; i < 90; i++) {
+          expect(<int>[alphaAt(i, 0), alphaAt(i, 89), alphaAt(0, i), alphaAt(89, i)], everyElement(0), reason: 'edge $i');
+        }
+        // Both antennas are drawn outside the circle, towards the top corners.
+        expect(alphaAt(77, 12), 255);
+        expect(alphaAt(12, 12), 255);
+        image.dispose();
+        codec.dispose();
+      });
+    });
+
     testWidgets('uses the device pixel ratio by default', (WidgetTester tester) async {
       final double ratio = tester.view.devicePixelRatio;
       final BytesMapBitmap bitmap = asBytes((await tester.runAsync(() => createLocationMarkerBitmap(Colors.red)))!);
