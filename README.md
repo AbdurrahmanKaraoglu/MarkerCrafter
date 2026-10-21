@@ -21,7 +21,7 @@ Türkçe açıklama için [aşağıya](#türkçe) bakın.
 ```yaml
 dependencies:
   google_maps_flutter: ^2.13.0
-  marker_crafter: ^2.0.0
+  marker_crafter: ^2.1.0
 ```
 
 Set up a Google Maps API key as described in the
@@ -86,6 +86,10 @@ class _MapScreenState extends State<MapScreen> {
   is passed to `Marker` unchanged (`infoWindow`, `onTap`, `draggable`, ...).
 * Pass `pixelRatio:` (for example `MediaQuery.devicePixelRatioOf(context)`) to
   draw for a specific screen; it defaults to the main view's pixel ratio.
+* Pass `textScaler: MediaQuery.textScalerOf(context)` to follow the system
+  font size, and `maxWidth:` / `maxLines:` to `addLabelMarker` to keep long
+  text in bounds (it ends with "…").
+* `MarkerCrafter.clusterManagerId` adds the marker to a marker cluster.
 * To build the `Marker` yourself, call `createLabelMarkerBitmap(...)` and
   `MarkerCrafter.toMarker(icon)`.
 
@@ -116,6 +120,8 @@ işaretçisi (`addLocationMarker`).
 * Boyutlar mantıksal pikseldir; işaretçiler cihazın piksel oranında çizilir,
   bu yüzden her ekranda net ve aynı boyutta görünür.
 * Aynı `MarkerId` ile eklenen işaretçi eskisinin yerine geçer.
+* Uzun metin için `addLabelMarker`'a `maxWidth` ve `maxLines`, sistem yazı
+  boyutu için `textScaler: MediaQuery.textScalerOf(context)` verin.
 * Metot `await` ile tamamlandıktan sonra `setState` çağırın.
 * 1.x'ten geçiş için yukarıdaki tabloya bakın.
 

@@ -24,11 +24,20 @@ extension MarkerCrafterSetExtension on Set<Marker> {
   /// Adds a speech bubble marker with [MarkerCrafter.text] in it.
   ///
   /// See [createLabelMarkerBitmap].
-  Future<Marker> addLabelMarker(MarkerCrafter markerCrafter, {double? pixelRatio}) async {
+  Future<Marker> addLabelMarker(
+    MarkerCrafter markerCrafter, {
+    double maxWidth = double.infinity,
+    int? maxLines,
+    TextScaler textScaler = TextScaler.noScaling,
+    double? pixelRatio,
+  }) async {
     final BitmapDescriptor icon = await createLabelMarkerBitmap(
       markerCrafter.text,
       textStyle: markerCrafter.textStyle,
       backgroundColor: markerCrafter.backgroundColor,
+      maxWidth: maxWidth,
+      maxLines: maxLines,
+      textScaler: textScaler,
       pixelRatio: pixelRatio,
     );
     return _put(markerCrafter.toMarker(icon, defaultAnchor: _bottomCenter));
@@ -37,12 +46,18 @@ extension MarkerCrafterSetExtension on Set<Marker> {
   /// Adds a round marker of [radius] with [MarkerCrafter.text] in the middle.
   ///
   /// See [createRingMarkerBitmap].
-  Future<Marker> addRingMarker(MarkerCrafter markerCrafter, {double radius = 20, double? pixelRatio}) async {
+  Future<Marker> addRingMarker(
+    MarkerCrafter markerCrafter, {
+    double radius = 20,
+    TextScaler textScaler = TextScaler.noScaling,
+    double? pixelRatio,
+  }) async {
     final BitmapDescriptor icon = await createRingMarkerBitmap(
       markerCrafter.text,
       radius: radius,
       textStyle: markerCrafter.textStyle,
       backgroundColor: markerCrafter.backgroundColor,
+      textScaler: textScaler,
       pixelRatio: pixelRatio,
     );
     return _put(markerCrafter.toMarker(icon, defaultAnchor: _center));

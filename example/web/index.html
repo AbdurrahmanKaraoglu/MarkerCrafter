@@ -31,12 +31,8 @@
 
   <title>marker_crafter_example</title>
   <link rel="manifest" href="manifest.json">
-  <script src="maps_api_key.js" onerror="void 0"></script>
-  <script>
-    if (window.MAPS_API_KEY) {
-      document.write('<script src="https://maps.googleapis.com/maps/api/js?key=' + window.MAPS_API_KEY + '"></script>');
-    }
-  </script>
+  <!-- Optional, git-ignored: sets window.MAPS_API_KEY (see README.md). -->
+  <script src="maps_api_key.js"></script>
 </head>
 <body>
   <!--
@@ -47,6 +43,27 @@
     For more details:
     * https://docs.flutter.dev/platform-integration/web/initialization
   -->
-  <script src="flutter_bootstrap.js" async></script>
+  <script>
+    // Starts Flutter once the Maps JavaScript API is loaded, so the map can be
+    // created right away. Without a key Flutter starts anyway.
+    function addScript(src, onDone) {
+      const script = document.createElement('script');
+      script.src = src;
+      script.async = true;
+      if (onDone) {
+        script.onload = onDone;
+        script.onerror = onDone;
+      }
+      document.head.appendChild(script);
+    }
+    function startFlutter() {
+      addScript('flutter_bootstrap.js');
+    }
+    if (window.MAPS_API_KEY) {
+      addScript('https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(window.MAPS_API_KEY), startFlutter);
+    } else {
+      startFlutter();
+    }
+  </script>
 </body>
 </html>

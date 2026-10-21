@@ -10,7 +10,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class MarkerCrafter {
   /// Creates a marker description.
   ///
-  /// * [text] is drawn on the marker (ignored by the location marker).
+  /// * [text] is drawn on the marker (ignored by the location marker, so it
+  ///   can be left out there).
   /// * [markerId] identifies the marker; adding a marker with an id that is
   ///   already in the set replaces the old one.
   /// * [position] is where the marker is placed.
@@ -19,7 +20,7 @@ class MarkerCrafter {
   ///   center for ring and location markers.
   /// * The remaining parameters are passed to [Marker] unchanged.
   const MarkerCrafter({
-    required this.text,
+    this.text = '',
     required this.markerId,
     required this.position,
     this.backgroundColor = const Color(0xFF448AFF),
@@ -33,6 +34,7 @@ class MarkerCrafter {
     this.rotation = 0.0,
     this.visible = true,
     this.zIndexInt = 0,
+    this.clusterManagerId,
     this.onTap,
     this.onDrag,
     this.onDragStart,
@@ -98,6 +100,10 @@ class MarkerCrafter {
   /// earlier, and thus appearing to be closer to the surface of the Earth.
   final int zIndexInt;
 
+  /// The cluster manager this marker belongs to, if any. The cluster manager
+  /// must be added to the [GoogleMap] as well.
+  final ClusterManagerId? clusterManagerId;
+
   /// Callbacks to receive tap events for markers placed on this map.
   final VoidCallback? onTap;
 
@@ -127,6 +133,7 @@ class MarkerCrafter {
       rotation: rotation,
       visible: visible,
       zIndexInt: zIndexInt,
+      clusterManagerId: clusterManagerId,
       onTap: onTap,
       onDragStart: onDragStart,
       onDrag: onDrag,

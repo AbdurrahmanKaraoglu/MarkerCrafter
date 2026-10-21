@@ -66,6 +66,35 @@ void main() {
       expect(pngSize(bitmap.byteData).width, 36);
     });
 
+    testWidgets('wraps the text at maxWidth', (WidgetTester tester) async {
+      final BytesMapBitmap bitmap = asBytes(
+        (await tester.runAsync(() => createLabelMarkerBitmap('AB CD EF', textStyle: style, maxWidth: 30, pixelRatio: 1)))!,
+      );
+
+      // Three 20 px wide lines: "AB", "CD" and "EF".
+      expect(pngSize(bitmap.byteData), const Size(20 + 32, 30 + 16 + 10));
+    });
+
+    testWidgets('cuts the text at maxLines', (WidgetTester tester) async {
+      final BytesMapBitmap bitmap = asBytes(
+        (await tester.runAsync(
+          () => createLabelMarkerBitmap('AB CD EF', textStyle: style, maxWidth: 30, maxLines: 1, pixelRatio: 1),
+        ))!,
+      );
+
+      expect(pngSize(bitmap.byteData).height, 10 + 16 + 10);
+    });
+
+    testWidgets('scales the text with textScaler', (WidgetTester tester) async {
+      final BytesMapBitmap bitmap = asBytes(
+        (await tester.runAsync(
+          () => createLabelMarkerBitmap('AB', textStyle: style, textScaler: const TextScaler.linear(2), pixelRatio: 1),
+        ))!,
+      );
+
+      expect(pngSize(bitmap.byteData), const Size(40 + 32, 20 + 16 + 10));
+    });
+
     testWidgets('puts the arrow tip at the bottom center', (WidgetTester tester) async {
       final Color background = const Color(0xFF00FF00);
       await tester.runAsync(() async {
@@ -164,6 +193,7 @@ void main() {
         rotation: 90,
         visible: false,
         zIndexInt: 3,
+        clusterManagerId: const ClusterManagerId('cluster'),
         onTap: onTap,
       );
 
@@ -180,7 +210,15 @@ void main() {
       expect(marker.rotation, 90);
       expect(marker.visible, isFalse);
       expect(marker.zIndexInt, 3);
+      expect(marker.clusterManagerId, const ClusterManagerId('cluster'));
       expect(marker.onTap, onTap);
+    });
+
+    test('does not need text', () {
+      const MarkerCrafter options = MarkerCrafter(markerId: MarkerId('id'), position: LatLng(0, 0));
+
+      expect(options.text, isEmpty);
+      expect(options.toMarker(BitmapDescriptor.defaultMarker).clusterManagerId, isNull);
     });
 
     test('prefers an explicit anchor over the default', () {

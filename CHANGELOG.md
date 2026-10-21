@@ -1,3 +1,16 @@
+## 2.1.0
+
+* `MarkerCrafter.clusterManagerId` puts the marker in a marker cluster.
+* `addLabelMarker` / `createLabelMarkerBitmap` take `maxWidth` and `maxLines`
+  (with "…"), so long text no longer produces an oversized image.
+* `textScaler` on label and ring markers, for example
+  `MediaQuery.textScalerOf(context)` to follow the system font size. The
+  default is still no scaling.
+* `MarkerCrafter.text` is optional (defaults to `''`), since location markers
+  do not draw it.
+* Example app: the web page loads the Maps JavaScript API without
+  `document.write` and starts Flutter after it; markers follow the font size.
+
 ## 2.0.0
 
 Requires Dart 3 and Flutter 3.10 or newer, and `google_maps_flutter` 2.13 or newer.

@@ -31,19 +31,22 @@ class _MapScreenState extends State<MapScreen> {
 
   final Set<Marker> _markers = <Marker>{};
   double? _pixelRatio;
+  TextScaler? _textScaler;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Markers are drawn at the pixel ratio of the screen showing the map.
+    // Markers follow the pixel ratio and the font size of the screen.
     final double pixelRatio = MediaQuery.devicePixelRatioOf(context);
-    if (pixelRatio != _pixelRatio) {
+    final TextScaler textScaler = MediaQuery.textScalerOf(context);
+    if (pixelRatio != _pixelRatio || textScaler != _textScaler) {
       _pixelRatio = pixelRatio;
-      _addMarkers(pixelRatio);
+      _textScaler = textScaler;
+      _addMarkers(pixelRatio, textScaler);
     }
   }
 
-  Future<void> _addMarkers(double pixelRatio) async {
+  Future<void> _addMarkers(double pixelRatio, TextScaler textScaler) async {
     await _markers.addLabelMarker(
       const MarkerCrafter(
         text: 'Galata Kulesi',
@@ -51,6 +54,9 @@ class _MapScreenState extends State<MapScreen> {
         position: LatLng(41.0256, 28.9741),
         infoWindow: InfoWindow(title: 'Label marker'),
       ),
+      maxWidth: 160,
+      maxLines: 2,
+      textScaler: textScaler,
       pixelRatio: pixelRatio,
     );
     await _markers.addRingMarker(
@@ -61,11 +67,11 @@ class _MapScreenState extends State<MapScreen> {
         backgroundColor: Colors.teal,
         infoWindow: InfoWindow(title: 'Ring marker'),
       ),
+      textScaler: textScaler,
       pixelRatio: pixelRatio,
     );
     await _markers.addLocationMarker(
       const MarkerCrafter(
-        text: '',
         markerId: MarkerId('location'),
         position: LatLng(41.0115, 28.9834),
         backgroundColor: Colors.red,

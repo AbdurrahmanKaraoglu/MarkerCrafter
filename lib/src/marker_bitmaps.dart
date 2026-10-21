@@ -25,15 +25,31 @@ const double _labelArrowHeight = 10;
 /// All sizes are logical pixels. The image is rendered at [pixelRatio]
 /// (defaults to the device pixel ratio) so it stays sharp on high density
 /// screens and shows up on the map at its logical size.
+///
+/// The text wraps at [maxWidth] logical pixels (the bubble is 32 pixels wider
+/// for its padding). With [maxLines], text that does not fit ends with "…".
+/// Without limits a very long text gives a very large image, so set them for
+/// user provided text.
+///
+/// [textScaler] scales the text, for example with
+/// `MediaQuery.textScalerOf(context)` to follow the system font size.
 Future<BitmapDescriptor> createLabelMarkerBitmap(
   String text, {
   TextStyle? textStyle,
   Color backgroundColor = Colors.blueAccent,
+  double maxWidth = double.infinity,
+  int? maxLines,
+  TextScaler textScaler = TextScaler.noScaling,
   double? pixelRatio,
 }) {
+  assert(maxWidth > 0, 'maxWidth must be positive');
+  assert(maxLines == null || maxLines > 0, 'maxLines must be positive');
   final TextPainter textPainter = _layoutText(
     text,
     textStyle ?? const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
+    textScaler: textScaler,
+    maxWidth: maxWidth,
+    maxLines: maxLines,
   );
   final double bubbleWidth = math.max(textPainter.width + _labelHorizontalPadding * 2, _labelArrowWidth + _labelCornerRadius * 2);
   final double bubbleHeight = textPainter.height + _labelVerticalPadding * 2;
@@ -66,7 +82,8 @@ Future<BitmapDescriptor> createLabelMarkerBitmap(
 /// the middle, and returns it as a [BitmapDescriptor].
 ///
 /// The text is scaled down when it does not fit in the inner circle. Without a
-/// [textStyle], the text is bold and drawn in [backgroundColor].
+/// [textStyle], the text is bold and drawn in [backgroundColor]. [textScaler]
+/// works as in [createLabelMarkerBitmap], within the inner circle.
 ///
 /// The marker is round, so an anchor of `Offset(0.5, 0.5)` centers it on the
 /// position. See [createLabelMarkerBitmap] for [pixelRatio].
@@ -75,6 +92,7 @@ Future<BitmapDescriptor> createRingMarkerBitmap(
   double radius = 20,
   TextStyle? textStyle,
   Color backgroundColor = defaultRingColor,
+  TextScaler textScaler = TextScaler.noScaling,
   double? pixelRatio,
 }) {
   assert(radius > 0, 'radius must be positive');
@@ -82,6 +100,7 @@ Future<BitmapDescriptor> createRingMarkerBitmap(
   final TextPainter textPainter = _layoutText(
     text,
     textStyle ?? TextStyle(fontSize: radius * 0.6, color: backgroundColor, fontWeight: FontWeight.bold),
+    textScaler: textScaler,
   );
 
   return _render(Size.square(radius * 2), pixelRatio, (Canvas canvas) {
@@ -128,12 +147,22 @@ double resolvePixelRatio([double? pixelRatio]) {
   return ratio;
 }
 
-TextPainter _layoutText(String text, TextStyle style) {
+TextPainter _layoutText(
+  String text,
+  TextStyle style, {
+  TextScaler textScaler = TextScaler.noScaling,
+  double maxWidth = double.infinity,
+  int? maxLines,
+}) {
   return TextPainter(
     text: TextSpan(text: text, style: style),
     textAlign: TextAlign.center,
     textDirection: TextDirection.ltr,
-  )..layout();
+    textScaler: textScaler,
+    textWidthBasis: TextWidthBasis.longestLine,
+    maxLines: maxLines,
+    ellipsis: maxLines == null ? null : '…',
+  )..layout(maxWidth: maxWidth);
 }
 
 /// Records [draw] on a canvas of [logicalSize], rasterizes it at the pixel
