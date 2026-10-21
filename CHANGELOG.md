@@ -1,3 +1,12 @@
+## 2.2.0
+
+* `textDirection` on label and ring markers (`addLabelMarker`, `addRingMarker`,
+  `createLabelMarkerBitmap`, `createRingMarkerBitmap`). Pass
+  `TextDirection.rtl` or `Directionality.of(context)` for right-to-left
+  languages such as Arabic or Hebrew. The default is still left-to-right.
+* Example app: Turkish and English, following the device language, with a
+  language menu on both tabs.
+
 ## 2.1.2
 
 * Markers created right after start-up (for example in `initState` of the first

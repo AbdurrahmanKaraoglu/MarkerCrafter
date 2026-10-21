@@ -4,6 +4,8 @@ Shows what `marker_crafter` can do:
 
 - **Map:** label, ring and location markers on a Google Map, with a card
   carousel that moves the camera to each place.
+- **Languages:** English and Turkish. The app follows the device language;
+  the translate button on both tabs switches it.
 - **Studio:** edit a marker (shape, text, color, size, lines, font scaling),
   see the generated bitmap at its real size with its anchor, and copy the
   code. Studio works without an API key.

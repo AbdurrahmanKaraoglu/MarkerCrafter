@@ -95,6 +95,34 @@ void main() {
       expect(pngSize(bitmap.byteData), const Size(40 + 32, 20 + 16 + 10));
     });
 
+    testWidgets('lays the text out in textDirection', (WidgetTester tester) async {
+      const Color background = Color(0xFF00FF00);
+      const Color white = Color(0xFFFFFFFF);
+      await tester.runAsync(() async {
+        // "A B." is left-to-right letters plus a neutral period. In a
+        // right-to-left paragraph the period moves to the left: ".A B".
+        final BytesMapBitmap ltr = asBytes(
+          await createLabelMarkerBitmap('A B.', textStyle: style, backgroundColor: background, pixelRatio: 1),
+        );
+        final BytesMapBitmap rtl = asBytes(
+          await createLabelMarkerBitmap(
+            'A B.',
+            textStyle: style,
+            backgroundColor: background,
+            textDirection: TextDirection.rtl,
+            pixelRatio: 1,
+          ),
+        );
+
+        // The text starts at x = 16 and each glyph is 10 px; the row y = 13
+        // crosses the glyphs. The second slot is the space in "A B." and a
+        // glyph ("A") in ".A B".
+        expect(pngSize(rtl.byteData), pngSize(ltr.byteData));
+        expect(await pixelAt(ltr.byteData, 30, 13), background);
+        expect(await pixelAt(rtl.byteData, 30, 13), white);
+      });
+    });
+
     testWidgets('puts the arrow tip at the bottom center', (WidgetTester tester) async {
       final Color background = const Color(0xFF00FF00);
       await tester.runAsync(() async {

@@ -34,6 +34,11 @@ const double _labelArrowHeight = 10;
 ///
 /// [textScaler] scales the text, for example with
 /// `MediaQuery.textScalerOf(context)` to follow the system font size.
+///
+/// [textDirection] is the base direction of the text. Use
+/// [TextDirection.rtl] (or `Directionality.of(context)`) for right-to-left
+/// languages such as Arabic or Hebrew, so punctuation and numbers end up on the
+/// correct side.
 Future<BitmapDescriptor> createLabelMarkerBitmap(
   String text, {
   TextStyle? textStyle,
@@ -41,6 +46,7 @@ Future<BitmapDescriptor> createLabelMarkerBitmap(
   double maxWidth = double.infinity,
   int? maxLines,
   TextScaler textScaler = TextScaler.noScaling,
+  TextDirection textDirection = TextDirection.ltr,
   double? pixelRatio,
 }) {
   assert(maxWidth > 0, 'maxWidth must be positive');
@@ -49,6 +55,7 @@ Future<BitmapDescriptor> createLabelMarkerBitmap(
     text,
     textStyle ?? const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
     textScaler: textScaler,
+    textDirection: textDirection,
     maxWidth: maxWidth,
     maxLines: maxLines,
   );
@@ -84,7 +91,8 @@ Future<BitmapDescriptor> createLabelMarkerBitmap(
 ///
 /// The text is scaled down when it does not fit in the inner circle. Without a
 /// [textStyle], the text is bold and drawn in [backgroundColor]. [textScaler]
-/// works as in [createLabelMarkerBitmap], within the inner circle.
+/// and [textDirection] work as in [createLabelMarkerBitmap]; the text is kept
+/// within the inner circle.
 ///
 /// The marker is round, so an anchor of `Offset(0.5, 0.5)` centers it on the
 /// position. See [createLabelMarkerBitmap] for [pixelRatio].
@@ -94,6 +102,7 @@ Future<BitmapDescriptor> createRingMarkerBitmap(
   TextStyle? textStyle,
   Color backgroundColor = defaultRingColor,
   TextScaler textScaler = TextScaler.noScaling,
+  TextDirection textDirection = TextDirection.ltr,
   double? pixelRatio,
 }) {
   assert(radius > 0, 'radius must be positive');
@@ -102,6 +111,7 @@ Future<BitmapDescriptor> createRingMarkerBitmap(
     text,
     textStyle ?? TextStyle(fontSize: radius * 0.6, color: backgroundColor, fontWeight: FontWeight.bold),
     textScaler: textScaler,
+    textDirection: textDirection,
   );
 
   return _render(Size.square(radius * 2), pixelRatio, (Canvas canvas) {
@@ -207,14 +217,15 @@ TextPainter _layoutText(
   String text,
   TextStyle style, {
   TextScaler textScaler = TextScaler.noScaling,
+  TextDirection textDirection = TextDirection.ltr,
   double maxWidth = double.infinity,
   int? maxLines,
 }) {
   return TextPainter(
     text: TextSpan(text: text, style: style),
     textAlign: TextAlign.center,
-    textDirection: TextDirection.ltr,
     textScaler: textScaler,
+    textDirection: textDirection,
     textWidthBasis: TextWidthBasis.longestLine,
     maxLines: maxLines,
     ellipsis: maxLines == null ? null : '…',

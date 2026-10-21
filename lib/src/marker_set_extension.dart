@@ -29,6 +29,7 @@ extension MarkerCrafterSetExtension on Set<Marker> {
     double maxWidth = double.infinity,
     int? maxLines,
     TextScaler textScaler = TextScaler.noScaling,
+    TextDirection textDirection = TextDirection.ltr,
     double? pixelRatio,
   }) async {
     final BitmapDescriptor icon = await createLabelMarkerBitmap(
@@ -38,6 +39,7 @@ extension MarkerCrafterSetExtension on Set<Marker> {
       maxWidth: maxWidth,
       maxLines: maxLines,
       textScaler: textScaler,
+      textDirection: textDirection,
       pixelRatio: pixelRatio,
     );
     return _put(markerCrafter.toMarker(icon, defaultAnchor: _bottomCenter));
@@ -50,6 +52,7 @@ extension MarkerCrafterSetExtension on Set<Marker> {
     MarkerCrafter markerCrafter, {
     double radius = 20,
     TextScaler textScaler = TextScaler.noScaling,
+    TextDirection textDirection = TextDirection.ltr,
     double? pixelRatio,
   }) async {
     final BitmapDescriptor icon = await createRingMarkerBitmap(
@@ -58,6 +61,7 @@ extension MarkerCrafterSetExtension on Set<Marker> {
       textStyle: markerCrafter.textStyle,
       backgroundColor: markerCrafter.backgroundColor,
       textScaler: textScaler,
+      textDirection: textDirection,
       pixelRatio: pixelRatio,
     );
     return _put(markerCrafter.toMarker(icon, defaultAnchor: _center));

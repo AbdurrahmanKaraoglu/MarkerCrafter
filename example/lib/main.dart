@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'src/app_strings.dart';
 import 'src/app_theme.dart';
 import 'src/map_page.dart';
 import 'src/studio_page.dart';
@@ -13,12 +15,20 @@ class MarkerCrafterExampleApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Marker Crafter',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
-      home: const HomeShell(),
+    return ValueListenableBuilder<Locale?>(
+      valueListenable: appLocale,
+      builder: (BuildContext context, Locale? locale, _) => MaterialApp(
+        title: 'Marker Crafter',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light(),
+        darkTheme: AppTheme.dark(),
+        // Null follows the device language (Turkish or English).
+        locale: locale,
+        supportedLocales: supportedLocales,
+        localeListResolutionCallback: resolveLocale,
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
+        home: const HomeShell(),
+      ),
     );
   }
 }
@@ -35,18 +45,24 @@ class _HomeShellState extends State<HomeShell> {
 
   @override
   Widget build(BuildContext context) {
+    final AppStrings strings = AppStrings.of(context);
     return Scaffold(
       // Keeps both pages alive so the map is not recreated on every switch.
-      body: IndexedStack(
-        index: _index,
-        children: const <Widget>[MapPage(), StudioPage()],
-      ),
+      body: IndexedStack(index: _index, children: const <Widget>[MapPage(), StudioPage()]),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (int index) => setState(() => _index = index),
-        destinations: const <NavigationDestination>[
-          NavigationDestination(icon: Icon(Icons.map_outlined), selectedIcon: Icon(Icons.map), label: 'Map'),
-          NavigationDestination(icon: Icon(Icons.tune_outlined), selectedIcon: Icon(Icons.tune), label: 'Studio'),
+        destinations: <NavigationDestination>[
+          NavigationDestination(
+            icon: const Icon(Icons.map_outlined),
+            selectedIcon: const Icon(Icons.map),
+            label: strings.navMap,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.tune_outlined),
+            selectedIcon: const Icon(Icons.tune),
+            label: strings.navStudio,
+          ),
         ],
       ),
     );

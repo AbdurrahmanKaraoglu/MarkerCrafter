@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:marker_crafter/marker_crafter.dart';
 
+import 'app_strings.dart';
 import 'app_theme.dart';
 import 'map_page.dart' show PlaceKind;
 import 'marker_preview.dart';
@@ -26,6 +27,8 @@ class StudioPage extends StatefulWidget {
 }
 
 class _StudioPageState extends State<StudioPage> {
+  static const Set<String> _sampleLabels = <String>{'Galata Tower', 'Galata Kulesi'};
+
   final TextEditingController _text = TextEditingController(text: 'Galata Tower');
   PlaceKind _kind = PlaceKind.label;
   Color _color = _palette.first;
@@ -41,6 +44,11 @@ class _StudioPageState extends State<StudioPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Swaps the sample text when the language changes, unless it was edited.
+    final String sample = AppStrings.of(context).galataTower;
+    if (_text.text != sample && _sampleLabels.contains(_text.text)) {
+      _text.text = sample;
+    }
     _render();
   }
 
@@ -59,6 +67,7 @@ class _StudioPageState extends State<StudioPage> {
     final int generation = ++_generation;
     final double pixelRatio = MediaQuery.devicePixelRatioOf(context);
     final TextScaler textScaler = _followFontSize ? MediaQuery.textScalerOf(context) : TextScaler.noScaling;
+    final TextDirection textDirection = Directionality.of(context);
     final BitmapDescriptor icon = switch (_kind) {
       PlaceKind.label => await createLabelMarkerBitmap(
         _text.text,
@@ -66,6 +75,7 @@ class _StudioPageState extends State<StudioPage> {
         maxWidth: _labelWidth,
         maxLines: _maxLines,
         textScaler: textScaler,
+        textDirection: textDirection,
         pixelRatio: pixelRatio,
       ),
       PlaceKind.ring => await createRingMarkerBitmap(
@@ -73,6 +83,7 @@ class _StudioPageState extends State<StudioPage> {
         radius: _ringRadius,
         backgroundColor: _color,
         textScaler: textScaler,
+        textDirection: textDirection,
         pixelRatio: pixelRatio,
       ),
       PlaceKind.location => await createLocationMarkerBitmap(_color, size: _locationSize, pixelRatio: pixelRatio),
@@ -102,6 +113,7 @@ class _StudioPageState extends State<StudioPage> {
 
   @override
   Widget build(BuildContext context) {
+    final AppStrings strings = AppStrings.of(context);
     final ThemeData theme = Theme.of(context);
     final ColorScheme scheme = theme.colorScheme;
 
@@ -110,13 +122,14 @@ class _StudioPageState extends State<StudioPage> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const Text('Marker Studio'),
-            Text(
-              'Design a marker and copy the code',
-              style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-            ),
+            Text(strings.studioTitle),
+            Text(strings.studioSubtitle, style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
           ],
         ),
+        actions: const <Widget>[
+          LanguageButton(),
+          SizedBox(width: Gap.xs),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, Gap.lg),
@@ -124,15 +137,27 @@ class _StudioPageState extends State<StudioPage> {
           _PreviewCard(icon: _icon, anchor: _kind == PlaceKind.label ? const Offset(0.5, 1) : const Offset(0.5, 0.5)),
           const SizedBox(height: Gap.md),
           _Section(
-            title: 'Shape',
+            title: strings.shape,
             child: SizedBox(
               width: double.infinity,
               child: SegmentedButton<PlaceKind>(
                 showSelectedIcon: false,
-                segments: const <ButtonSegment<PlaceKind>>[
-                  ButtonSegment<PlaceKind>(value: PlaceKind.label, label: Text('Label'), icon: Icon(Icons.chat_bubble_outline)),
-                  ButtonSegment<PlaceKind>(value: PlaceKind.ring, label: Text('Ring'), icon: Icon(Icons.radio_button_checked)),
-                  ButtonSegment<PlaceKind>(value: PlaceKind.location, label: Text('Location'), icon: Icon(Icons.my_location)),
+                segments: <ButtonSegment<PlaceKind>>[
+                  ButtonSegment<PlaceKind>(
+                    value: PlaceKind.label,
+                    label: Text(strings.kindLabel),
+                    icon: const Icon(Icons.chat_bubble_outline),
+                  ),
+                  ButtonSegment<PlaceKind>(
+                    value: PlaceKind.ring,
+                    label: Text(strings.kindRing),
+                    icon: const Icon(Icons.radio_button_checked),
+                  ),
+                  ButtonSegment<PlaceKind>(
+                    value: PlaceKind.location,
+                    label: Text(strings.kindLocation),
+                    icon: const Icon(Icons.my_location),
+                  ),
                 ],
                 selected: <PlaceKind>{_kind},
                 onSelectionChanged: (Set<PlaceKind> value) => _update(() {
@@ -140,7 +165,7 @@ class _StudioPageState extends State<StudioPage> {
                   if (_kind == PlaceKind.ring && _text.text.length > 4) {
                     _text.text = '12';
                   } else if (_kind == PlaceKind.label && _text.text.length <= 4) {
-                    _text.text = 'Galata Tower';
+                    _text.text = strings.galataTower;
                   }
                 }),
               ),
@@ -149,18 +174,18 @@ class _StudioPageState extends State<StudioPage> {
           if (_kind != PlaceKind.location) ...<Widget>[
             const SizedBox(height: Gap.md),
             _Section(
-              title: 'Text',
+              title: strings.text,
               child: TextField(
                 controller: _text,
                 textInputAction: TextInputAction.done,
-                decoration: const InputDecoration(prefixIcon: Icon(Icons.text_fields), hintText: 'Marker text'),
+                decoration: InputDecoration(prefixIcon: const Icon(Icons.text_fields), hintText: strings.textHint),
                 onChanged: (_) => _update(() {}),
               ),
             ),
           ],
           const SizedBox(height: Gap.md),
           _Section(
-            title: 'Color',
+            title: strings.color,
             child: Wrap(
               spacing: Gap.sm + Gap.xs,
               runSpacing: Gap.sm,
@@ -173,9 +198,9 @@ class _StudioPageState extends State<StudioPage> {
           const SizedBox(height: Gap.md),
           _Section(
             title: switch (_kind) {
-              PlaceKind.label => 'Max width · ${_labelWidth.round()} pt',
-              PlaceKind.ring => 'Radius · ${_ringRadius.round()} pt',
-              PlaceKind.location => 'Size · ${_locationSize.round()} pt',
+              PlaceKind.label => strings.maxWidth(_labelWidth.round()),
+              PlaceKind.ring => strings.radius(_ringRadius.round()),
+              PlaceKind.location => strings.size(_locationSize.round()),
             },
             child: switch (_kind) {
               PlaceKind.label => Slider(
@@ -204,19 +229,20 @@ class _StudioPageState extends State<StudioPage> {
           if (_kind == PlaceKind.label) ...<Widget>[
             const SizedBox(height: Gap.md),
             _Section(
-              title: 'Max lines',
+              title: strings.maxLines,
               child: SizedBox(
                 width: double.infinity,
                 child: SegmentedButton<int>(
                   showSelectedIcon: false,
-                  segments: const <ButtonSegment<int>>[
-                    ButtonSegment<int>(value: 1, label: Text('1')),
-                    ButtonSegment<int>(value: 2, label: Text('2')),
-                    ButtonSegment<int>(value: 3, label: Text('3')),
-                    ButtonSegment<int>(value: 0, label: Text('No limit')),
+                  segments: <ButtonSegment<int>>[
+                    const ButtonSegment<int>(value: 1, label: Text('1')),
+                    const ButtonSegment<int>(value: 2, label: Text('2')),
+                    const ButtonSegment<int>(value: 3, label: Text('3')),
+                    ButtonSegment<int>(value: 0, label: Text(strings.noLimit)),
                   ],
                   selected: <int>{_maxLines ?? 0},
-                  onSelectionChanged: (Set<int> value) => _update(() => _maxLines = value.single == 0 ? null : value.single),
+                  onSelectionChanged: (Set<int> value) =>
+                      _update(() => _maxLines = value.single == 0 ? null : value.single),
                 ),
               ),
             ),
@@ -225,8 +251,8 @@ class _StudioPageState extends State<StudioPage> {
             const SizedBox(height: Gap.sm),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Follow system font size'),
-              subtitle: const Text('Uses MediaQuery.textScalerOf(context)'),
+              title: Text(strings.followFontSize),
+              subtitle: Text(strings.followFontSizeHint),
               value: _followFontSize,
               onChanged: (bool v) => _update(() => _followFontSize = v),
             ),
@@ -252,7 +278,7 @@ class _Section extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          title.toUpperCase(),
+          AppStrings.of(context).upper(title),
           style: theme.textTheme.labelSmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w700,
@@ -279,7 +305,8 @@ class _Swatch extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
-      label: 'Color ${color.toARGB32().toRadixString(16)}',
+      label:
+          '${AppStrings.of(context).color} #${(color.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0').toUpperCase()}',
       child: InkResponse(
         onTap: onTap,
         radius: 28,
@@ -357,7 +384,7 @@ class _PreviewCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     size == null
-                        ? 'Rendering…'
+                        ? AppStrings.of(context).rendering
                         : '${size.width.round()} × ${size.height.round()} pt  ·  '
                               '${(icon as BytesMapBitmap).imagePixelRatio}x  ·  '
                               '${(icon.byteData.lengthInBytes / 1024).toStringAsFixed(1)} KB',
@@ -366,7 +393,10 @@ class _PreviewCard extends StatelessWidget {
                 ),
                 Container(width: 14, height: 2, color: scheme.error.withValues(alpha: 0.55)),
                 const SizedBox(width: Gap.xs + 2),
-                Text('anchor guides', style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+                Text(
+                  AppStrings.of(context).anchorGuides,
+                  style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                ),
               ],
             ),
           ),
@@ -435,7 +465,7 @@ class _CodeCard extends StatelessWidget {
             Row(
               children: <Widget>[
                 Text(
-                  'CODE',
+                  AppStrings.of(context).upper(AppStrings.of(context).code),
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: scheme.onInverseSurface.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w700,
@@ -444,13 +474,14 @@ class _CodeCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 IconButton(
-                  tooltip: 'Copy',
+                  tooltip: AppStrings.of(context).copy,
                   color: scheme.onInverseSurface,
                   icon: const Icon(Icons.copy_rounded, size: 20),
                   onPressed: () async {
                     await Clipboard.setData(ClipboardData(text: code));
                     if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Code copied')));
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text(AppStrings.of(context).codeCopied)));
                     }
                   },
                 ),
@@ -460,12 +491,7 @@ class _CodeCard extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               child: Text(
                 code,
-                style: TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: 12.5,
-                  height: 1.5,
-                  color: scheme.onInverseSurface,
-                ),
+                style: TextStyle(fontFamily: 'monospace', fontSize: 12.5, height: 1.5, color: scheme.onInverseSurface),
               ),
             ),
           ],

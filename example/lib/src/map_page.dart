@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:marker_crafter/marker_crafter.dart';
 
+import 'app_strings.dart';
 import 'app_theme.dart';
 import 'marker_preview.dart';
 
@@ -11,8 +12,10 @@ class Place {
   const Place(this.id, this.name, this.category, this.position, this.kind, this.color, {this.badge = ''});
 
   final String id;
-  final String name;
-  final String category;
+
+  /// Name and category in the current language.
+  final String Function(AppStrings strings) name;
+  final String Function(AppStrings strings) category;
   final LatLng position;
   final PlaceKind kind;
   final Color color;
@@ -21,12 +24,49 @@ class Place {
   final String badge;
 }
 
-const List<Place> _places = <Place>[
-  Place('galata', 'Galata Tower', 'Landmark', LatLng(41.0256, 28.9741), PlaceKind.label, Color(0xFF1F3A5F)),
-  Place('hagia', 'Hagia Sophia', 'Landmark', LatLng(41.0086, 28.9802), PlaceKind.label, Color(0xFF7A4E2D)),
-  Place('office', 'Head Office', '12 open roles', LatLng(41.0766, 29.0135), PlaceKind.ring, Color(0xFF0F766E), badge: '12'),
-  Place('hub', 'Logistics Hub', '48 vehicles', LatLng(41.0422, 28.8922), PlaceKind.ring, Color(0xFF4338CA), badge: '48'),
-  Place('team', 'Field Team', 'Live location', LatLng(41.0369, 28.9850), PlaceKind.location, Color(0xFFDC2626)),
+final List<Place> _places = <Place>[
+  Place(
+    'galata',
+    (AppStrings s) => s.galataTower,
+    (AppStrings s) => s.landmark,
+    const LatLng(41.0256, 28.9741),
+    PlaceKind.label,
+    const Color(0xFF1F3A5F),
+  ),
+  Place(
+    'hagia',
+    (AppStrings s) => s.hagiaSophia,
+    (AppStrings s) => s.landmark,
+    const LatLng(41.0086, 28.9802),
+    PlaceKind.label,
+    const Color(0xFF7A4E2D),
+  ),
+  Place(
+    'office',
+    (AppStrings s) => s.headOffice,
+    (AppStrings s) => s.openRoles(12),
+    const LatLng(41.0766, 29.0135),
+    PlaceKind.ring,
+    const Color(0xFF0F766E),
+    badge: '12',
+  ),
+  Place(
+    'hub',
+    (AppStrings s) => s.logisticsHub,
+    (AppStrings s) => s.vehicles(48),
+    const LatLng(41.0422, 28.8922),
+    PlaceKind.ring,
+    const Color(0xFF4338CA),
+    badge: '48',
+  ),
+  Place(
+    'team',
+    (AppStrings s) => s.fieldTeam,
+    (AppStrings s) => s.liveLocation,
+    const LatLng(41.0369, 28.9850),
+    PlaceKind.location,
+    const Color(0xFFDC2626),
+  ),
 ];
 
 /// Places on a Google Map with a card carousel underneath.
@@ -47,17 +87,26 @@ class _MapPageState extends State<MapPage> {
   int _generation = 0;
   double? _pixelRatio;
   TextScaler? _textScaler;
+  AppStrings? _strings;
+  TextDirection? _textDirection;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Markers follow the pixel ratio and the font size of the screen.
+    // Markers follow the pixel ratio, the font size and the language.
     final double pixelRatio = MediaQuery.devicePixelRatioOf(context);
     final TextScaler textScaler = MediaQuery.textScalerOf(context);
-    if (pixelRatio != _pixelRatio || textScaler != _textScaler) {
+    final AppStrings strings = AppStrings.of(context);
+    final TextDirection textDirection = Directionality.of(context);
+    if (pixelRatio != _pixelRatio ||
+        textScaler != _textScaler ||
+        strings != _strings ||
+        textDirection != _textDirection) {
       _pixelRatio = pixelRatio;
       _textScaler = textScaler;
-      _buildMarkers(pixelRatio, textScaler);
+      _strings = strings;
+      _textDirection = textDirection;
+      _buildMarkers(pixelRatio, textScaler, strings, textDirection);
     }
   }
 
@@ -67,7 +116,12 @@ class _MapPageState extends State<MapPage> {
     super.dispose();
   }
 
-  Future<void> _buildMarkers(double pixelRatio, TextScaler textScaler) async {
+  Future<void> _buildMarkers(
+    double pixelRatio,
+    TextScaler textScaler,
+    AppStrings strings,
+    TextDirection textDirection,
+  ) async {
     // Draws into a new set and keeps only the newest one, so a slower, older
     // drawing (for example the one made before the screen metrics arrived)
     // never replaces a newer one.
@@ -77,16 +131,29 @@ class _MapPageState extends State<MapPage> {
 
     for (final Place place in _places) {
       final MarkerCrafter crafter = MarkerCrafter(
-        text: place.kind == PlaceKind.ring ? place.badge : place.name,
+        text: place.kind == PlaceKind.ring ? place.badge : place.name(strings),
         markerId: MarkerId(place.id),
         position: place.position,
         backgroundColor: place.color,
-        infoWindow: InfoWindow(title: place.name, snippet: place.category),
+        infoWindow: InfoWindow(title: place.name(strings), snippet: place.category(strings)),
         onTap: () => _select(place, moveCamera: false),
       );
       final Marker marker = switch (place.kind) {
-        PlaceKind.label => await markers.addLabelMarker(crafter, maxWidth: 140, maxLines: 2, textScaler: textScaler, pixelRatio: pixelRatio),
-        PlaceKind.ring => await markers.addRingMarker(crafter, radius: 22, textScaler: textScaler, pixelRatio: pixelRatio),
+        PlaceKind.label => await markers.addLabelMarker(
+          crafter,
+          maxWidth: 140,
+          maxLines: 2,
+          textScaler: textScaler,
+          textDirection: textDirection,
+          pixelRatio: pixelRatio,
+        ),
+        PlaceKind.ring => await markers.addRingMarker(
+          crafter,
+          radius: 22,
+          textScaler: textScaler,
+          textDirection: textDirection,
+          pixelRatio: pixelRatio,
+        ),
         PlaceKind.location => await markers.addLocationMarker(crafter, size: 32, pixelRatio: pixelRatio),
       };
       icons[place.id] = marker.icon;
@@ -165,6 +232,7 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppStrings strings = AppStrings.of(context);
     final ThemeData theme = Theme.of(context);
     final ColorScheme scheme = theme.colorScheme;
     return Card(
@@ -185,16 +253,22 @@ class _Header extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Text('Marker Crafter', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-                  Text('Istanbul operations', style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+                  Text(
+                    strings.mapSubtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                  ),
                 ],
               ),
             ),
             Chip(
               avatar: Icon(Icons.layers_outlined, size: 18, color: scheme.primary),
-              label: Text('$count markers'),
+              label: Text(strings.markerCount(count)),
               side: BorderSide(color: scheme.outlineVariant),
               backgroundColor: scheme.surfaceContainerLow,
             ),
+            const LanguageButton(),
           ],
         ),
       ),
@@ -221,10 +295,11 @@ class _PlaceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme scheme = theme.colorScheme;
+    final AppStrings strings = AppStrings.of(context);
     final String kind = switch (place.kind) {
-      PlaceKind.label => 'Label',
-      PlaceKind.ring => 'Ring',
-      PlaceKind.location => 'Location',
+      PlaceKind.label => strings.kindLabel,
+      PlaceKind.ring => strings.kindRing,
+      PlaceKind.location => strings.kindLocation,
     };
     return SizedBox(
       width: 236,
@@ -247,7 +322,10 @@ class _PlaceCard extends StatelessWidget {
                   decoration: BoxDecoration(color: scheme.surfaceContainerLow, borderRadius: BorderRadius.circular(12)),
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
-                    child: Padding(padding: const EdgeInsets.all(Gap.xs), child: MarkerPreview(icon: icon)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(Gap.xs),
+                      child: MarkerPreview(icon: icon),
+                    ),
                   ),
                 ),
                 const SizedBox(width: Gap.sm + Gap.xs),
@@ -257,14 +335,14 @@ class _PlaceCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        place.name,
+                        place.name(strings),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        place.category,
+                        place.category(strings),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
@@ -272,10 +350,7 @@ class _PlaceCard extends StatelessWidget {
                       const SizedBox(height: Gap.sm),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: place.color,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
+                        decoration: BoxDecoration(color: place.color, borderRadius: BorderRadius.circular(6)),
                         child: Text(
                           kind,
                           style: theme.textTheme.labelSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.w700),

@@ -21,7 +21,7 @@ Türkçe açıklama için [aşağıya](#türkçe) bakın.
 ```yaml
 dependencies:
   google_maps_flutter: ^2.13.0
-  marker_crafter: ^2.1.0
+  marker_crafter: ^2.2.0
 ```
 
 Set up a Google Maps API key as described in the
@@ -93,6 +93,8 @@ class _MapScreenState extends State<MapScreen> {
   font size, and `maxWidth:` / `maxLines:` to `addLabelMarker` to keep long
   text in bounds (it ends with "…").
 * `MarkerCrafter.clusterManagerId` adds the marker to a marker cluster.
+* Pass `textDirection: Directionality.of(context)` (or `TextDirection.rtl`) to
+  label and ring markers for right-to-left languages.
 * To build the `Marker` yourself, call `createLabelMarkerBitmap(...)` and
   `MarkerCrafter.toMarker(icon)`.
 
