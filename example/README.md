@@ -1,6 +1,12 @@
 # marker_crafter_example
 
-Shows the label, ring and location markers of `marker_crafter` on a Google Map.
+Shows what `marker_crafter` can do:
+
+- **Map:** label, ring and location markers on a Google Map, with a card
+  carousel that moves the camera to each place.
+- **Studio:** edit a marker (shape, text, color, size, lines, font scaling),
+  see the generated bitmap at its real size with its anchor, and copy the
+  code. Studio works without an API key.
 
 The app needs a Google Maps API key. Keys are never committed; put yours in
 one of these git-ignored places before running:

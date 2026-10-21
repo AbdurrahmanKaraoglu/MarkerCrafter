@@ -5,8 +5,9 @@
   1.0 until the screen metrics arrive. Without an explicit `pixelRatio`, marker
   functions now wait for the metrics (up to 2 seconds). New
   `waitForPixelRatio()` exposes the same logic.
-* Example app: only the newest marker drawing is shown, so an older, slower one
-  cannot replace it.
+* Example app: redesigned with a Map tab and a Marker Studio tab (live
+  preview, anchor guides, copyable code); only the newest marker drawing is
+  shown, so an older, slower one cannot replace it.
 
 ## 2.1.1
 
