@@ -1,16 +1,13 @@
-# example
+# marker_crafter_example
 
-A new Flutter project.
+Shows the label, ring and location markers of `marker_crafter` on a Google Map.
 
-## Getting Started
+The app needs a Google Maps API key. Keys are never committed; put yours in
+one of these git-ignored places before running:
 
-This project is a starting point for a Flutter application.
+- **Android:** `MAPS_API_KEY=<key>` in `android/local.properties`
+  (or a `MAPS_API_KEY` environment variable).
+- **iOS:** `MAPS_API_KEY = <key>` in `ios/Flutter/MapsApiKey.xcconfig`.
+- **Web:** `window.MAPS_API_KEY = '<key>';` in `web/maps_api_key.js`.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Then run `flutter run`.

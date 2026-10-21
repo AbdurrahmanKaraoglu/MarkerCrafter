@@ -1,13 +1,21 @@
-import UIKit
 import Flutter
+import GoogleMaps
+import UIKit
 
-@UIApplicationMain
-@objc class AppDelegate: FlutterAppDelegate {
+@main
+@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    GeneratedPluginRegistrant.register(with: self)
+    // MAPS_API_KEY comes from the git-ignored ios/Flutter/MapsApiKey.xcconfig.
+    if let key = Bundle.main.object(forInfoDictionaryKey: "GMSApiKey") as? String, !key.isEmpty {
+      GMSServices.provideAPIKey(key)
+    }
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+
+  func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
+    GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
   }
 }

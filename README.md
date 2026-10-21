@@ -2,203 +2,123 @@
 
 [![pub package](https://img.shields.io/pub/v/marker_crafter.svg)](https://pub.dev/packages/marker_crafter)
 
-Marker Crafter, harita üzerinde kullanıcı tanımlı metin etiketlerini işaretçilere eklemek için kullanılan bir Flutter paketidir. Bu paket, Google Maps Flutter paketini kullanarak harita üzerindeki işaretçilere özel metin eklemenizi sağlar.
+Draws custom [Google Maps](https://pub.dev/packages/google_maps_flutter) markers
+with `Canvas` and turns them into `BitmapDescriptor`s:
 
-## Kullanım
+| Shape | Method | Default anchor |
+| --- | --- | --- |
+| Speech bubble with text and an arrow | `addLabelMarker` / `createLabelMarkerBitmap` | bottom center (arrow tip) |
+| Colored ring with text in the middle | `addRingMarker` / `createRingMarkerBitmap` | center |
+| Circle with two "antennas" | `addLocationMarker` / `createLocationMarkerBitmap` | center |
 
-1. İlk olarak, projenize `google_maps_flutter` paketini ekleyin. `pubspec.yaml` dosyasını aşağıdaki gibi düzenleyin:
+Sizes are logical pixels. Markers are rendered at the device pixel ratio, so
+they are sharp and the same size on every screen.
+
+Türkçe açıklama için [aşağıya](#türkçe) bakın.
+
+## Installation
 
 ```yaml
 dependencies:
-  flutter:
-    sdk: flutter
-  google_maps_flutter: ^2.0.10
+  google_maps_flutter: ^2.13.0
+  marker_crafter: ^2.0.0
 ```
 
-2. Ardından, projenize `marker_crafter` paketini ekleyin. `pubspec.yaml` dosyasını aşağıdaki gibi düzenleyin ve paketi projenize ekleyin:
-
-```yaml
-dependencies:
-  flutter:
-    sdk: flutter
-  google_maps_flutter: ^2.0.10
-  marker_crafter: ^1.1.3
-```
-
-3. İşte bir örnek kod:
-
-```dart
-import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:marker_crafter/marker_crafter.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: MapScreen(),
-    );
-  }
-}
-
-class MapScreen extends StatefulWidget {
-  @override
-  _MapScreenState createState() => _MapScreenState();
-}
-
-class _MapScreenState extends State<MapScreen> {
-  Set<Marker> markers = {};
-
-  @override
-  void initState() {
-    super.initState();
-    addMarkers();
-  }
-
-  void addMarkers() async {
-    MarkerCrafter marker = MarkerCrafter(
-      text: "İşaretçi Etiketi",
-      markerId: MarkerId("markerIdString"),
-      position: LatLng(11.1203, 45.33),
-    );
-
-    bool success = await markers.addTextMarker(marker);
-    if (success) {
-      setState(() {});
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Marker Crafter Demo"),
-      ),
-      body: GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: LatLng(11.1203, 45.33),
-          zoom: 10,
-        ),
-        markers: markers,
-      ),
-    );
-  }
-}
-```
-
-Bu örnekte, `MarkerCrafter` sınıfını kullanarak bir işaretçi haritaya eklenmektedir. `addTextMarker` fonksiyonu, bir `MarkerCrafter` örneği alır ve verilen metin ile bir işaretçi oluşturur.
-
----
-
-Bu kadar! Artık Flutter projenizde Marker Crafter paketini kullanabilirsiniz. İşaretçilere metin eklemek için `MarkerCrafter` sınıfını kullanabilirsiniz.
-
-## Lisans
-
-Bu proje MIT Lisansı altında lisanslanmıştır. Daha fazla bilgi için [LICENSE](https://pub.dev/packages/marker_crafter/license) dosyasını inceleyebilirsiniz.
-
-
-# Marker Crafter
-
-[![pub package](https://img.shields.io/pub/v/marker_crafter.svg)](https://pub.dev/packages/marker_crafter)
-
-Marker Crafter is a Flutter package used to add user-defined text labels to markers on a map. This package allows you to add custom text to markers on a map using the Google Maps Flutter package.
+Set up a Google Maps API key as described in the
+[google_maps_flutter README](https://pub.dev/packages/google_maps_flutter).
 
 ## Usage
 
-1. First, add the `google_maps_flutter` package to your project. Edit the `pubspec.yaml` file as follows:
-
-```yaml
-dependencies:
-  flutter:
-    sdk: flutter
-  google_maps_flutter: ^2.0.10
-```
-
-2. Next, add the `marker_crafter` package to your project. Edit the `pubspec.yaml` file as follows and add the package to your project:
-
-```yaml
-dependencies:
-  flutter:
-    sdk: flutter
-  google_maps_flutter: ^2.0.10
-  marker_crafter: ^1.1.3
-```
-
-3. Here's an example code:
-
 ```dart
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:marker_crafter/marker_crafter.dart';
 
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: MapScreen(),
-    );
-  }
-}
-
 class MapScreen extends StatefulWidget {
+  const MapScreen({super.key});
+
   @override
-  _MapScreenState createState() => _MapScreenState();
+  State<MapScreen> createState() => _MapScreenState();
 }
 
 class _MapScreenState extends State<MapScreen> {
-  Set<Marker> markers = {};
+  final Set<Marker> _markers = <Marker>{};
 
   @override
   void initState() {
     super.initState();
-    addMarkers();
+    _addMarkers();
   }
 
-  void addMarkers() async {
-    MarkerCrafter marker = MarkerCrafter(
-      text: "Marker Label",
-      markerId: MarkerId("markerIdString"),
-      position: LatLng(11.1203, 45.33),
+  Future<void> _addMarkers() async {
+    await _markers.addLabelMarker(
+      const MarkerCrafter(
+        text: 'Galata Kulesi',
+        markerId: MarkerId('label'),
+        position: LatLng(41.0256, 28.9741),
+      ),
     );
-
-    bool success = await markers.addTextMarker(marker);
-    if (success) {
-      setState(() {});
-    }
+    await _markers.addRingMarker(
+      const MarkerCrafter(
+        text: '12',
+        markerId: MarkerId('ring'),
+        position: LatLng(41.0086, 28.9802),
+        backgroundColor: Colors.teal,
+      ),
+      radius: 20,
+    );
+    // The set changes after an await: rebuild once the markers are added.
+    if (mounted) setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Marker Crafter Demo"),
-      ),
-      body: GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: LatLng(11.1203, 45.33),
-          zoom: 10,
-        ),
-        markers: markers,
-      ),
+    return GoogleMap(
+      initialCameraPosition: const CameraPosition(target: LatLng(41.0082, 28.9784), zoom: 13),
+      markers: _markers,
     );
   }
 }
 ```
 
-In this example, a marker is added to the map using the `MarkerCrafter` class. The `addTextMarker` function takes a `MarkerCrafter` instance and creates a marker with the given text.
+* Adding a marker with a `MarkerId` that is already in the set replaces it.
+* Every `MarkerCrafter` option except `text`, `backgroundColor` and `textStyle`
+  is passed to `Marker` unchanged (`infoWindow`, `onTap`, `draggable`, ...).
+* Pass `pixelRatio:` (for example `MediaQuery.devicePixelRatioOf(context)`) to
+  draw for a specific screen; it defaults to the main view's pixel ratio.
+* To build the `Marker` yourself, call `createLabelMarkerBitmap(...)` and
+  `MarkerCrafter.toMarker(icon)`.
 
----
+See the [example app](example/) for a runnable demo.
 
-That's it! You can now use the Marker Crafter package in your Flutter project. You can use the `MarkerCrafter` class to add text to markers.
+## Migrating from 1.x
+
+| 1.x | 2.0 |
+| --- | --- |
+| `import 'package:marker_crafter/extension/marker_crafter_add_extension.dart'` | `import 'package:marker_crafter/marker_crafter.dart'` |
+| `addTextMarker` | `addLabelMarker` |
+| `addTextMarker2` | `addLocationMarker` |
+| `addEvilEyeBeadMarker` | `addRingMarker(radius: 20)` |
+| `addRoundedMarker` | `addRingMarker(radius: 15)` |
+| `zIndex: 1.0` | `zIndexInt: 1` |
+| `icon:` | removed (the icon is always drawn) |
+
+The old methods still work but are deprecated. Markers are now sized in logical
+pixels, so they look larger than in 1.x; see the [changelog](CHANGELOG.md).
+
+## Türkçe
+
+Marker Crafter, Google Maps işaretçilerini `Canvas` ile çizip
+`BitmapDescriptor`'a çeviren bir Flutter paketidir: metinli konuşma balonu
+(`addLabelMarker`), ortasında metin olan halka (`addRingMarker`) ve konum
+işaretçisi (`addLocationMarker`).
+
+* Boyutlar mantıksal pikseldir; işaretçiler cihazın piksel oranında çizilir,
+  bu yüzden her ekranda net ve aynı boyutta görünür.
+* Aynı `MarkerId` ile eklenen işaretçi eskisinin yerine geçer.
+* Metot `await` ile tamamlandıktan sonra `setState` çağırın.
+* 1.x'ten geçiş için yukarıdaki tabloya bakın.
 
 ## License
 
-This project is licensed under the MIT License. For more information, see the [LICENSE](https://pub.dev/packages/marker_crafter/license) file.
+MIT. See [LICENSE](LICENSE).
