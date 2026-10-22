@@ -1,3 +1,8 @@
+## 2.2.2
+
+* DOCS: README lists the author's other packages. / README'de geliştiricinin
+  diğer paketleri listelendi.
+
 ## 2.2.1
 
 * The SDK constraints now match what the package really needs: Dart 3.7 and
