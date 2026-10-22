@@ -1,3 +1,14 @@
+## 2.2.1
+
+* The SDK constraints now match what the package really needs: Dart 3.7 and
+  Flutter 3.29, the minimum of `google_maps_flutter` 2.13. The old `^3.0.0` /
+  `>=3.10.0` were never resolvable with `google_maps_flutter` 2.13 anyway.
+* README: screenshots of the example's Marker Studio (also on pub.dev), the
+  requirements, and a section on using the icons with `animated_route_marker`
+  and `google_maps_polyline`.
+* Tests for `textDirection` on ring markers and for the extension methods
+  passing the text options through.
+
 ## 2.2.0
 
 * `textDirection` on label and ring markers (`addLabelMarker`, `addRingMarker`,

@@ -14,6 +14,14 @@ with `Canvas` and turns them into `BitmapDescriptor`s:
 Sizes are logical pixels. Markers are rendered at the device pixel ratio, so
 they are sharp and the same size on every screen.
 
+<p>
+  <img src="https://raw.githubusercontent.com/AbdurrahmanKaraoglu/MarkerCrafter/master/doc/screenshots/en_01_studio_label.png" width="240" alt="Label marker in Marker Studio">
+  <img src="https://raw.githubusercontent.com/AbdurrahmanKaraoglu/MarkerCrafter/master/doc/screenshots/en_02_studio_ring.png" width="240" alt="Ring marker in Marker Studio">
+  <img src="https://raw.githubusercontent.com/AbdurrahmanKaraoglu/MarkerCrafter/master/doc/screenshots/en_03_studio_location.png" width="240" alt="Location marker in Marker Studio">
+</p>
+
+<sub>Marker Studio in the example app: edit a marker, see it at its real size with its anchor, copy the code.</sub>
+
 Türkçe açıklama için [aşağıya](#türkçe) bakın.
 
 ## Installation
@@ -23,6 +31,9 @@ dependencies:
   google_maps_flutter: ^2.13.0
   marker_crafter: ^2.2.0
 ```
+
+Requires Dart 3.7 and Flutter 3.29 or newer (the minimum of
+`google_maps_flutter` 2.13).
 
 Set up a Google Maps API key as described in the
 [google_maps_flutter README](https://pub.dev/packages/google_maps_flutter).
@@ -98,7 +109,27 @@ class _MapScreenState extends State<MapScreen> {
 * To build the `Marker` yourself, call `createLabelMarkerBitmap(...)` and
   `MarkerCrafter.toMarker(icon)`.
 
-See the [example app](example/) for a runnable demo.
+See the [example app](example/) for a runnable demo: a map tab and a Marker
+Studio tab, in English and Turkish.
+
+## Use with other packages
+
+The icons are plain `BitmapDescriptor`s, so they work with any package that
+takes a marker icon. Two packages by the same author fit well:
+
+- [animated_route_marker](https://pub.dev/packages/animated_route_marker)
+  moves a marker along a route or towards live GPS positions. The location
+  marker points north, so it turns with the vehicle's bearing:
+
+  ```dart
+  final icon = await createLocationMarkerBitmap(Colors.indigo, size: 34);
+  courier.markerTemplate = courier.markerTemplate.copyWith(iconParam: icon);
+  courier.setRoute(route, speed: 12, autoPlay: true);
+  ```
+
+- [google_maps_polyline](https://pub.dev/packages/google_maps_polyline) gets
+  the route between two points from the Directions API or decodes an encoded
+  polyline; mark its start and end with ring markers such as "A" and "B".
 
 ## Migrating from 1.x
 
@@ -127,8 +158,21 @@ işaretçisi (`addLocationMarker`).
 * Aynı `MarkerId` ile eklenen işaretçi eskisinin yerine geçer.
 * Uzun metin için `addLabelMarker`'a `maxWidth` ve `maxLines`, sistem yazı
   boyutu için `textScaler: MediaQuery.textScalerOf(context)` verin.
+* Sağdan sola yazılan diller (Arapça, İbranice) için `textDirection` verin.
 * Metot `await` ile tamamlandıktan sonra `setState` çağırın.
 * 1.x'ten geçiş için yukarıdaki tabloya bakın.
+* Gereksinim: Dart 3.7 ve Flutter 3.29 veya üzeri.
+* Birlikte kullanım: [animated_route_marker](https://pub.dev/packages/animated_route_marker)
+  işaretçiyi rota boyunca hareket ettirir,
+  [google_maps_polyline](https://pub.dev/packages/google_maps_polyline) iki
+  nokta arasındaki rotayı getirir; ikonlar bu paketle çizilebilir.
+* Örnek uygulama Türkçe ve İngilizcedir; cihaz dilini izler.
+
+<p>
+  <img src="https://raw.githubusercontent.com/AbdurrahmanKaraoglu/MarkerCrafter/master/doc/screenshots/tr_01_studio_label.png" width="240" alt="İşaretçi Stüdyosu: etiket">
+  <img src="https://raw.githubusercontent.com/AbdurrahmanKaraoglu/MarkerCrafter/master/doc/screenshots/tr_02_studio_ring.png" width="240" alt="İşaretçi Stüdyosu: halka">
+  <img src="https://raw.githubusercontent.com/AbdurrahmanKaraoglu/MarkerCrafter/master/doc/screenshots/tr_03_studio_location.png" width="240" alt="İşaretçi Stüdyosu: konum">
+</p>
 
 ## License
 

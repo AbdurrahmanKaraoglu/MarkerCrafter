@@ -1,6 +1,6 @@
 name: marker_crafter
 description: Draws custom Google Maps markers (text labels, rings and location pins) with Canvas and turns them into BitmapDescriptors.
-version: 2.2.0
+version: 2.2.1
 homepage: https://github.com/AbdurrahmanKaraoglu/MarkerCrafter
 repository: https://github.com/AbdurrahmanKaraoglu/MarkerCrafter
 issue_tracker: https://github.com/AbdurrahmanKaraoglu/MarkerCrafter/issues
@@ -10,9 +10,18 @@ topics:
   - marker
   - canvas
 
+screenshots:
+  - description: Marker Studio in the example app designing a label marker.
+    path: doc/screenshots/en_01_studio_label.png
+  - description: A ring marker with a number, centered on its anchor.
+    path: doc/screenshots/en_02_studio_ring.png
+  - description: A location marker and the generated code.
+    path: doc/screenshots/en_03_studio_location.png
+
 environment:
-  sdk: ^3.0.0
-  flutter: ">=3.10.0"
+  # google_maps_flutter 2.13 needs Dart 3.7 / Flutter 3.29.
+  sdk: ^3.7.0
+  flutter: ">=3.29.0"
 
 dependencies:
   flutter:

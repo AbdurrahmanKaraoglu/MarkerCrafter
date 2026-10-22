@@ -140,6 +140,21 @@ void main() {
   });
 
   group('createRingMarkerBitmap', () {
+    testWidgets('lays the text out in textDirection', (WidgetTester tester) async {
+      const TextStyle red = TextStyle(fontSize: 8, color: Color(0xFFFF0000));
+      await tester.runAsync(() async {
+        // 32 px of text fits the inner circle unscaled and starts at x = 24.
+        // The second 8 px slot is the space in "A B." and "A" in ".A B".
+        final BytesMapBitmap ltr = asBytes(await createRingMarkerBitmap('A B.', radius: 40, textStyle: red, pixelRatio: 1));
+        final BytesMapBitmap rtl = asBytes(
+          await createRingMarkerBitmap('A B.', radius: 40, textStyle: red, textDirection: TextDirection.rtl, pixelRatio: 1),
+        );
+
+        expect(await pixelAt(ltr.byteData, 36, 40), const Color(0xFFFFFFFF));
+        expect(await pixelAt(rtl.byteData, 36, 40), red.color);
+      });
+    });
+
     testWidgets('is 2 × radius wide at any text length', (WidgetTester tester) async {
       await tester.runAsync(() async {
         for (final String text in <String>['1', '12345678']) {
@@ -348,6 +363,47 @@ void main() {
 
       expect(markers, hasLength(1));
       expect(markers.single.anchor, const Offset(0.5, 0.5));
+    });
+
+    testWidgets('passes the text options to the bitmap', (WidgetTester tester) async {
+      const MarkerCrafter rtlText = MarkerCrafter(
+        text: 'A B.',
+        markerId: MarkerId('rtl'),
+        position: LatLng(0, 0),
+        textStyle: TextStyle(fontSize: 10, color: Color(0xFFFFFFFF)),
+      );
+      await tester.runAsync(() async {
+        final Marker label = await <Marker>{}.addLabelMarker(
+          rtlText,
+          textDirection: TextDirection.rtl,
+          textScaler: const TextScaler.linear(2),
+          pixelRatio: 1,
+        );
+        final BytesMapBitmap expected = asBytes(
+          await createLabelMarkerBitmap(
+            'A B.',
+            textStyle: rtlText.textStyle,
+            backgroundColor: rtlText.backgroundColor,
+            textDirection: TextDirection.rtl,
+            textScaler: const TextScaler.linear(2),
+            pixelRatio: 1,
+          ),
+        );
+        expect(asBytes(label.icon).byteData, expected.byteData);
+
+        final Marker ring = await <Marker>{}.addRingMarker(rtlText, radius: 40, textDirection: TextDirection.rtl, pixelRatio: 1);
+        final BytesMapBitmap expectedRing = asBytes(
+          await createRingMarkerBitmap(
+            'A B.',
+            radius: 40,
+            textStyle: rtlText.textStyle,
+            backgroundColor: rtlText.backgroundColor,
+            textDirection: TextDirection.rtl,
+            pixelRatio: 1,
+          ),
+        );
+        expect(asBytes(ring.icon).byteData, expectedRing.byteData);
+      });
     });
 
     testWidgets('keeps the 1.x methods working', (WidgetTester tester) async {
