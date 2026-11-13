@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:marker_crafter/marker_crafter.dart';
@@ -45,7 +45,7 @@ const MarkerCrafter crafter = MarkerCrafter(
 void main() {
   // The test font draws every glyph as a fontSize × fontSize box, so text
   // measurements are exact.
-  const TextStyle style = TextStyle(fontSize: 10, color: Colors.white);
+  const TextStyle style = TextStyle(fontSize: 10, color: Color(0xFFFFFFFF));
 
   group('createLabelMarkerBitmap', () {
     testWidgets('sizes the bubble from the text and the pixel ratio', (WidgetTester tester) async {
@@ -231,7 +231,7 @@ void main() {
         ..devicePixelRatio = 1.0;
 
       final BytesMapBitmap bitmap = asBytes((await tester.runAsync(() async {
-        final Future<BitmapDescriptor> pending = createLocationMarkerBitmap(Colors.red, size: 30);
+        final Future<BitmapDescriptor> pending = createLocationMarkerBitmap(const Color(0xFFF44336), size: 30);
         await Future<void>.delayed(const Duration(milliseconds: 20));
         tester.view
           ..devicePixelRatio = 2.5
@@ -257,7 +257,7 @@ void main() {
 
     testWidgets('uses the device pixel ratio by default', (WidgetTester tester) async {
       final double ratio = tester.view.devicePixelRatio;
-      final BytesMapBitmap bitmap = asBytes((await tester.runAsync(() => createLocationMarkerBitmap(Colors.red)))!);
+      final BytesMapBitmap bitmap = asBytes((await tester.runAsync(() => createLocationMarkerBitmap(const Color(0xFFF44336))))!);
 
       expect(resolvePixelRatio(), ratio);
       expect(bitmap.imagePixelRatio, ratio);
@@ -267,10 +267,10 @@ void main() {
 
   group('LocationMarkerPainter', () {
     test('repaints only when the color changes', () {
-      const LocationMarkerPainter red = LocationMarkerPainter(color: Colors.red);
+      const LocationMarkerPainter red = LocationMarkerPainter(color: Color(0xFFF44336));
 
-      expect(red.shouldRepaint(const LocationMarkerPainter(color: Colors.red)), isFalse);
-      expect(red.shouldRepaint(const LocationMarkerPainter(color: Colors.blue)), isTrue);
+      expect(red.shouldRepaint(const LocationMarkerPainter(color: Color(0xFFF44336))), isFalse);
+      expect(red.shouldRepaint(const LocationMarkerPainter(color: Color(0xFF2196F3))), isTrue);
     });
   });
 

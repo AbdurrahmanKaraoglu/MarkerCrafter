@@ -3,13 +3,18 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'location_marker_painter.dart';
 
+// Default label background: the value of Material's `Colors.blueAccent`.
+const Color _defaultLabelColor = Color(0xFF448AFF);
+
 /// Default background color of [createRingMarkerBitmap].
 const Color defaultRingColor = Color(0xFF3644FF);
+
+const Color _white = Color(0xFFFFFFFF);
 
 const double _labelHorizontalPadding = 16;
 const double _labelVerticalPadding = 8;
@@ -42,7 +47,7 @@ const double _labelArrowHeight = 10;
 Future<BitmapDescriptor> createLabelMarkerBitmap(
   String text, {
   TextStyle? textStyle,
-  Color backgroundColor = Colors.blueAccent,
+  Color backgroundColor = _defaultLabelColor,
   double maxWidth = double.infinity,
   int? maxLines,
   TextScaler textScaler = TextScaler.noScaling,
@@ -53,7 +58,7 @@ Future<BitmapDescriptor> createLabelMarkerBitmap(
   assert(maxLines == null || maxLines > 0, 'maxLines must be positive');
   final TextPainter textPainter = _layoutText(
     text,
-    textStyle ?? const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
+    textStyle ?? const TextStyle(fontSize: 14, color: _white, fontWeight: FontWeight.bold),
     textScaler: textScaler,
     textDirection: textDirection,
     maxWidth: maxWidth,
@@ -117,7 +122,7 @@ Future<BitmapDescriptor> createRingMarkerBitmap(
   return _render(Size.square(radius * 2), pixelRatio, (Canvas canvas) {
     final Offset center = Offset(radius, radius);
     canvas.drawCircle(center, radius, Paint()..color = backgroundColor);
-    canvas.drawCircle(center, innerRadius, Paint()..color = Colors.white);
+    canvas.drawCircle(center, innerRadius, Paint()..color = _white);
 
     if (textPainter.width == 0 || textPainter.height == 0) {
       return;

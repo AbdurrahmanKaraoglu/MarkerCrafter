@@ -1,3 +1,15 @@
+## 2.2.3
+
+* Flutter 3.50: the library no longer imports `package:flutter/material.dart`
+  (deprecated in 3.50); it uses `widgets.dart` with the same colour values, so
+  Flutter 3.29+ is still supported and nothing changes for users. / Flutter
+  3.50: kütüphane artık `package:flutter/material.dart`'ı (3.50'de kullanımdan
+  kalktı) içe aktarmıyor; aynı renk değerleriyle `widgets.dart` kullanıyor.
+  Flutter 3.29+ desteği sürüyor, kullanıcı için bir şey değişmiyor.
+* Example: Android Gradle Plugin 9.3.1, Gradle 9.5.0, Kotlin 2.4.20 so it
+  builds with Flutter 3.50. / Örnek: Flutter 3.50 ile derlenmesi için Android
+  Gradle Plugin 9.3.1, Gradle 9.5.0, Kotlin 2.4.20.
+
 ## 2.2.2
 
 * DOCS: README lists the author's other packages. / README'de geliştiricinin
